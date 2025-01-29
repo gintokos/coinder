@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -17,40 +18,44 @@ import (
 func main() {
 	config.MustInitForParser()
 
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})))
+
 	db, err := postgres.NewDatabase()
 	if err != nil {
-		slog.Error("error on creating database", sl.Err(err))
+		slog.Error("error on creating database: ", sl.Err(err))
 		os.Exit(1)
 	}
+	slog.Info("Database was created")
 
-	pars, err := parser.NewParser(db)
-	if err != nil {
-		slog.Error("error on creating parser", sl.Err(err))
-		os.Exit(1)
+	parsCfg := parser.Config{
+		Timestamp:           time.Second * 10,
+		TimeoutForReq:       time.Second * 10,
+		ApiKeyCoinMarketCap: "adb5310b-ece6-40c1-9904-caa8f3cc704e",
 	}
+	pars := parser.NewParser(parsCfg, db)
+	slog.Info("Parser was created")
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var wg sync.WaitGroup
 	go func() {
-		err := pars.Run()
+		err = pars.Run(ctx, &wg)
 		if err != nil {
-			slog.Error("error on running parser", sl.Err(err))
+			slog.Error("failed to start parser ", sl.Err(err))
 			os.Exit(1)
 		}
 	}()
+	slog.Info("Parser start running")
 
-	closed := make(chan os.Signal, 1)
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGTERM, os.Interrupt)
 
-	signal.Notify(closed, os.Interrupt, syscall.SIGTERM)
+	<-s
+	cancel()
 
-	<-closed
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := pars.GraceFullShutDown(ctx); err != nil {
-		slog.Error("error on shutting down parser", sl.Err(err))
-		os.Exit(1)
-	} else {
-		slog.Info("parser stopped successfully")
-	}
-
+	wg.Wait()
+	slog.Info("Parser ended work")
 }

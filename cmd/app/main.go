@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	config.MustInitForServer()
+	config.MustInitForApp()
 
 	db, err := postgres.NewDatabase()
 	if err != nil {
