@@ -1,50 +1,51 @@
 class Coin {
-    fullname = ''
-    shortname = ''
-    uniqid = 0
-    likesAmount = 0
-    dislikesAmount = 0
-    photoUrl = ''
-    network = ''
-    currentPrice = 0
-    volume24h = 0
-    circulatingSupply = 0
-    totalSupply = 0
-    maxSupply = 0
-    contract = ''
-    burses = []
-    percentChange = {
-        hour: 0,
-        day: 0,
-        week: 0,
-        month: 0,
-        year: 0
-    }
+   constructor(data) {
+       this.id = 0
+       this.name = ''
+       this.symbol = ''
+       this.slug = ''
+       
+       this.lastUpdated = null
+       this.dateAdded = null
+       this.dateLaunched = null
 
-    constructor(data) {
-        this.update(data)
-    }
+       this.price = 0
+       this.volume24h = 0
+       this.volumeChange24h = 0
+       this.marketCap = 0
+       this.marketCapDominance = 0
+       this.fullyDilutedMarketCap = 0
 
-    update(data) {
-        if (!data) return
+       this.percentChange = {
+           hour: 0,
+           day: 0,
+           week: 0
+       }
 
-        if (data.percentChange) {
-            this.percentChange = { ...this.percentChange, ...data.percentChange }
-        }
+       this.urls = {
+           website: '',
+           technicalDoc: '',
+           twitter: '',
+           reddit: '',
+           messageBoard: '',
+           announcement: '',
+           chat: '', 
+           explorer: '',
+           sourceCode: ''
+       }
 
-        if (data.burses) {
-            this.burses = [...data.burses]
-        }
+       this.logo = ''
+       this.description = ''
 
-        Object.assign(this, data)
-    }
-    
-    getuniqname() {
-        if (this.network === undefined) {
-            return `${this.fullname}(${this.shortname})`.trim()
-        }
-        return `${this.fullname}(${this.network})`.trim()
-    }
+       this.update(data)
+   }
+
+   update(data) {
+       if (!data) return
+       Object.assign(this, data)
+
+       return this
+   }
 }
 
 export default Coin

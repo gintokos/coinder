@@ -35,7 +35,7 @@ type Parser struct {
 }
 
 type Database interface {
-	SaveCoins(coins []models.DBCoin) error
+	SaveCoinsForce(coins []models.DBCoin) error
 }
 
 // timestamp is time beetwen planed updating database
@@ -82,7 +82,7 @@ func (p *Parser) Run(ctx context.Context, wg *sync.WaitGroup) error {
 		}
 	}()
 
-	<- ctx.Done()
+	<-ctx.Done()
 
 	return nil
 }
@@ -129,13 +129,17 @@ func (p *Parser) parseallCoins() {
 
 	slog.Info("updating database")
 	dbcoins := make([]models.DBCoin, 0, len(coins))
+	startTime := time.Now()
 	for i := range coins {
 		dbcoins = append(dbcoins, models.ToDBcoin(&coins[i]))
 	}
-	err := p.db.SaveCoins(dbcoins)
+	err := p.db.SaveCoinsForce(dbcoins)
 	if err != nil {
-		slog.Error("error on saving in database: %w", sl.Err(err))
+		slog.Error("error on saving in database:", sl.Err(err))
 	}
+	elapsed := time.Since(startTime).Milliseconds()
+	slog.Debug(fmt.Sprintf("Operation took %d ms", elapsed))
+
 	slog.Info("all tokens was updated")
 }
 
@@ -154,7 +158,7 @@ func (p *Parser) fetchWitoutMeta(limit, start int, ids ...string) ([]models.Pars
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error on creating req: %w", err)
+		return nil, fmt.Errorf("error on creating req: %v", err)
 	}
 
 	req.Header.Set("X-CMC_PRO_API_KEY", p.apikey)
@@ -162,13 +166,13 @@ func (p *Parser) fetchWitoutMeta(limit, start int, ids ...string) ([]models.Pars
 
 	resp, err := p.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
+		return nil, fmt.Errorf("error making request: %v", err)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		return nil, fmt.Errorf("error in reading body response: %w", err)
+		return nil, fmt.Errorf("error in reading body response: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -186,7 +190,7 @@ func (p *Parser) fetchWitoutMeta(limit, start int, ids ...string) ([]models.Pars
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return nil, fmt.Errorf("error on unmarshaling: %w", err)
+		return nil, fmt.Errorf("error on unmarshaling: %v", err)
 	}
 
 	return response.Data, nil
@@ -206,7 +210,7 @@ func (p *Parser) fetchForMeta(coins []models.ParserCoin) error {
 	url := fmt.Sprintf("%s/v2/cryptocurrency/info", baseURL)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("error on creating req: %w", err)
+		return fmt.Errorf("error on creating req: %v", err)
 	}
 
 	req.Header.Set("X-CMC_PRO_API_KEY", p.apikey)
@@ -218,13 +222,13 @@ func (p *Parser) fetchForMeta(coins []models.ParserCoin) error {
 
 	resp, err := p.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("error making request: %w", err)
+		return fmt.Errorf("error making request: %v", err)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		return fmt.Errorf("error in reading body response: %w", err)
+		return fmt.Errorf("error in reading body response: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -237,7 +241,7 @@ func (p *Parser) fetchForMeta(coins []models.ParserCoin) error {
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return fmt.Errorf("error on unmarshaling response: %w", err)
+		return fmt.Errorf("error on unmarshaling response: %v", err)
 	}
 
 	counter := 0

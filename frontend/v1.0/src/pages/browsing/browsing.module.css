@@ -1,0 +1,25 @@
+.container {
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+}
+
+.card {
+    padding: 100px;
+}
+
+.btn {
+    position: fixed;
+    right: 1.5vw;
+    z-index: 1000;
+}
+
+.down {
+    top: 50%;
+    transform: translateY(30px) rotate(180deg);
+}
+
+.up {
+    bottom: 50%;
+    transform: translateY(-30px);
+}

@@ -1,0 +1,28 @@
+.layout {
+  height: 100vh; 
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; 
+}
+
+.header {
+  height: 64px;
+  color: red;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.feed {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer {
+  height: 64px;
+}

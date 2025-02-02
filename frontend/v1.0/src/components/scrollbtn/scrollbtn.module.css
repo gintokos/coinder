@@ -1,0 +1,16 @@
+.scrollButton {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: #acacac;
+    box-shadow: 0 2px 6px rgba(233, 2, 2, 0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scrollButton:hover svg path {
+    stroke: #ffffff;
+}

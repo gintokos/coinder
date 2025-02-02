@@ -7,12 +7,12 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
-	"time"
 
 	"github.com/gintokos/coinder/internal/config"
 	"github.com/gintokos/coinder/internal/parser"
 	"github.com/gintokos/coinder/internal/storage/postgres"
 	"github.com/gintokos/coinder/pkg/sl"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -30,9 +30,9 @@ func main() {
 	slog.Info("Database was created")
 
 	parsCfg := parser.Config{
-		Timestamp:           time.Second * 10,
-		TimeoutForReq:       time.Second * 10,
-		ApiKeyCoinMarketCap: "adb5310b-ece6-40c1-9904-caa8f3cc704e",
+		Timestamp:           viper.GetDuration("parser.timestamp"),
+		TimeoutForReq:       viper.GetDuration("parser.timeout_for_req"),
+		ApiKeyCoinMarketCap: viper.GetString("parser.cmc_apikey"),
 	}
 	pars := parser.NewParser(parsCfg, db)
 	slog.Info("Parser was created")

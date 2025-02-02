@@ -8,6 +8,7 @@ import (
 	"github.com/gintokos/coinder/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Database struct {
@@ -15,6 +16,7 @@ type Database struct {
 }
 
 var gormConfig = &gorm.Config{
+
 	NowFunc: func() time.Time {
 		return time.Now().UTC()
 	}}
@@ -42,6 +44,8 @@ func NewDatabase() (*Database, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error on creating tables")
 	}
+
+	d.db.Config.Logger = logger.Default.LogMode(logger.Silent)
 
 	return &d, nil
 }
