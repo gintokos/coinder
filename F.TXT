@@ -1,0 +1,125 @@
+
+const API_URL = 'https://awfully-evident-sole.ngrok-free.app/api/v1';
+
+function App() {
+  const [response, setResponse] = useState(undefined);
+  const [debugStr, setDebugStr] = useState('');
+  const [pingResponse, setPingResponse] = useState(undefined);
+
+  async function sendauth(checkString, data, source) {
+    try {
+      const response = await fetch(`${API_URL}/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'T-Source-H': source,
+        },
+        body: JSON.stringify({
+          datastr: checkString,
+          data: source === 'miniapp' ? {
+            id: data.id,
+            first_name: data.first_name,
+            username: data.username,
+            photo_url: data.photo_url,
+            auth_date: parseInt(data.auth_date),
+            hash: data.hash
+          } : data,
+        }),
+      });
+
+      const result = await response.json();
+      setResponse(result);
+    } catch (error) {
+      console.error('Ошибка при отправке запроса:', error);
+      setResponse({ error: 'Произошла ошибка при авторизации' });
+    }
+  }
+
+  const handleTelegramAuth = () => {
+    if (window.Telegram?.WebApp?.initData !== "") {
+      const params = new URLSearchParams(window.Telegram.WebApp.initData);
+      const data = {
+        id: JSON.parse(params.get('user')).id,
+        first_name: JSON.parse(params.get('user')).first_name,
+        username: JSON.parse(params.get('user')).username,
+        photo_url: JSON.parse(params.get('user')).photo_url,
+        auth_date: params.get('auth_date'),
+        hash: params.get('hash')
+      };
+
+      const entries = Array.from(params.entries());
+      const sortedEntries = entries
+        .filter(([key]) => key !== 'hash')
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, value]) => `${key}=${value}`);
+
+      const checkString = sortedEntries.join('\n');
+      setDebugStr(checkString);
+      sendauth(checkString, data, 'miniapp');
+    } else if (window.Telegram?.Login) {
+      window.Telegram.Login.auth(
+        {
+          bot_id: '8199185462',
+          request_access: true,
+          embed: false
+        },
+        (data) => {
+          if (data) {
+            const { hash, ...rest } = data;
+            const dataArr = Object.entries(rest).map(([key, value]) => `${key}=${value}`);
+            dataArr.sort();
+            const checkString = dataArr.join('\n');
+            setDebugStr(checkString);
+            sendauth(checkString, data, 'web');
+          }
+        }
+      );
+    } else {
+      setResponse({ error: 'Telegram API не доступен' });
+    }
+  };
+
+  const handlePing = async () => {
+    try {
+      const response = await fetch(`${API_URL}/ping`);
+      const result = await response.json();
+      setPingResponse(result);
+    } catch (error) {
+      console.error('Ошибка при отправке ping запроса:', error);
+      setPingResponse({ error: 'Произошла ошибка при выполнении ping запроса' });
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4 p-4">
+      <button 
+        onClick={handleTelegramAuth}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+      >
+        Войти через Telegram eeeeee
+      </button>
+      <button 
+        onClick={handlePing}
+      >
+        Ping pong nahuif
+      </button>
+      {debugStr && (
+        <pre className="p-4 bg-gray-100 rounded max-w-full overflow-x-auto">
+          Отправляемая строка: {debugStr}
+        </pre>
+      )}
+      {response && (
+        <pre className="p-4 bg-gray-100 rounded max-w-full overflow-x-auto">
+          {JSON.stringify(response, null, 2)}
+        </pre>
+      )}
+      {pingResponse && (
+        <pre>
+          {JSON.stringify(pingResponse, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
+
+export default App;

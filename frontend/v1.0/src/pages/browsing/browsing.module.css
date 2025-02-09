@@ -4,10 +4,6 @@
     position: relative;
 }
 
-.card {
-    padding: 100px;
-}
-
 .btn {
     position: fixed;
     right: 1.5vw;
@@ -22,4 +18,39 @@
 .up {
     bottom: 50%;
     transform: translateY(-30px);
+}
+
+.container :global(.swiper) {
+    height: 100%;
+}
+
+.container :global(.swiper-slide) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container :global(.swiper-button-prev),
+.container :global(.swiper-button-next) {
+    right: 1.5vw;
+    left: auto;
+    color: #000;
+}
+
+.container :global(.swiper-button-prev) {
+    bottom: 50%;
+    top: auto;
+    transform: translateY(-30px);
+}
+
+.container :global(.swiper-button-next) {
+    top: 50%;
+    transform: translateY(30px);
+}
+
+@media (max-width: 680px) {
+    .container :global(.swiper-button-prev),
+    .container :global(.swiper-button-next) {
+        display: none;
+    }
 }

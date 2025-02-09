@@ -1,15 +1,19 @@
-import Browsing from './pages/browsing/Browsing'
-import Page from './pages/page'
-
+import { Route, Routes } from "react-router";
+import Page from "./pages/page.jsx"
+import Browsing from "./pages/browsing/Browsing.jsx"
 
 function App() {
 
   return (
     <>
-      <Page Content={<Browsing/>}/>
+      <Routes>
+        <Route path="/" element={<Page />}>
+          <Route index element={<>YA GLAVNAYA</>} />
+          <Route path="browsing" element={<Browsing />} />
+        </Route>
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
-  
+export default App;

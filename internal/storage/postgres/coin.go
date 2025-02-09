@@ -8,7 +8,7 @@ import (
 
 const batchSize = 2000
 
-func (d *Database) SaveCoinsForce(coins []models.DBCoin) error {
+func (d *Database) UpdateCoins(coins []models.DBCoin) error {
 	return d.db.Transaction(func(tx *gorm.DB) error {
 		if len(coins) > 100 {
 			if err := tx.Exec(`
@@ -29,4 +29,9 @@ func (d *Database) SaveCoinsForce(coins []models.DBCoin) error {
 			},
 		).CreateInBatches(coins, batchSize).Error
 	})
+}
+
+func (d *Database) Coins() ([]models.DBCoin, error) {
+	var coins []models.DBCoin
+	return coins, d.db.Find(&coins).Error
 }

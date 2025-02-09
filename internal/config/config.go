@@ -13,9 +13,30 @@ func GetConfig() *config {
 	return &Config
 }
 
+const (
+	LOCAL            = "local"
+	LOCAL_WITH_NGROK = "local_with_ngrok"
+	DEV              = "dev"
+	PROD             = "prod"
+)
+
 type config struct {
-	Database database
-	Parser   parser `mapstructure:"parser"`
+	Env         string   `mapstructure:"env"`
+	NgrokDomain string   `mapstructure:"ngrok_domain"`
+	BotToken    string   `mapstructure:"botToken"`
+	Domain      string   `mapstructure:"domain"`
+	Server      server   `mapstructure:"server"`
+	Database    database `mapstructure:"database"`
+	Parser      parser   `mapstructure:"parser"`
+}
+
+type server struct {
+	Host              string        `mapstructure:"host"`
+	Port              string        `mapstructure:"port"`
+	ReadTimeout       time.Duration `mapstructure:"readTimeout"`
+	WriteTimeout      time.Duration `mapstructure:"writeTimeout"`
+	IdleTimeout       time.Duration `mapstructure:"idleTimeout"`
+	ReadHeaderTimeout time.Duration `mapstructure:"readHeaderTimeout"`
 }
 
 type parser struct {
@@ -32,13 +53,22 @@ type database struct {
 	Port     string `mapstructure:"port"`
 }
 
-func MustInitForApp() {
-	// viper.SetDefault()
+var defaultServer = server{
+	Host:              "127.0.0.1",
+	Port:              "8080",
+	ReadTimeout:       time.Second * 5,
+	WriteTimeout:      time.Second * 5,
+	IdleTimeout:       time.Second * 20,
+	ReadHeaderTimeout: time.Second * 5,
+}
 
+func MustInitForApp() {
+	viper.SetDefault("server", defaultServer)
+
+	LoadConfig("appconfig.json")
 }
 
 func MustInitForParser() {
-	// viper.SetDefault()
 	LoadConfig("parserconfig")
 }
 
@@ -46,7 +76,7 @@ func LoadConfig(defaultpath string) error {
 	configPath := flag.String("config", "", "path to config file")
 	flag.Parse()
 
-	viper.SetConfigFile("json")
+	viper.SetConfigType("json")
 
 	if *configPath != "" {
 		viper.SetConfigFile(*configPath)

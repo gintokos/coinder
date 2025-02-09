@@ -35,7 +35,7 @@ type Parser struct {
 }
 
 type Database interface {
-	SaveCoinsForce(coins []models.DBCoin) error
+	UpdateCoins(coins []models.DBCoin) error
 }
 
 // timestamp is time beetwen planed updating database
@@ -133,7 +133,7 @@ func (p *Parser) parseallCoins() {
 	for i := range coins {
 		dbcoins = append(dbcoins, models.ToDBcoin(&coins[i]))
 	}
-	err := p.db.SaveCoinsForce(dbcoins)
+	err := p.db.UpdateCoins(dbcoins)
 	if err != nil {
 		slog.Error("error on saving in database:", sl.Err(err))
 	}
@@ -244,13 +244,11 @@ func (p *Parser) fetchForMeta(coins []models.ParserCoin) error {
 		return fmt.Errorf("error on unmarshaling response: %v", err)
 	}
 
-	counter := 0
-	for _, v := range response.Data {
-		if counter == len(coins) {
-			break
+	for i, coin := range coins {
+		meta, ok := response.Data[strconv.Itoa(coin.ID)]
+		if ok {
+			coins[i].ParserMetaDataCoin = meta
 		}
-		coins[counter].ParserMetaDataCoin = v
-		counter++
 	}
 
 	return nil

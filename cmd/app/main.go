@@ -10,31 +10,36 @@ import (
 
 	"github.com/gintokos/coinder/internal/app"
 	"github.com/gintokos/coinder/internal/config"
-	"github.com/gintokos/coinder/internal/storage/postgres"
+	"github.com/gintokos/coinder/internal/storage"
 	"github.com/gintokos/coinder/pkg/sl"
 )
 
 func main() {
 	config.MustInitForApp()
 
-	db, err := postgres.NewDatabase()
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+	slog.Debug("default slog was updated")
+
+	db, err := storage.NewStorage()
 	if err != nil {
 		slog.Error("error on creating database", sl.Err(err))
 		os.Exit(1)
 	}
+	slog.Info("database was created")
 
 	app, err := app.NewApp(db)
 	if err != nil {
 		slog.Error("error on creating app", sl.Err(err))
 		os.Exit(1)
 	}
+	slog.Info("app was created")
 
-	go func() {
-		if err := app.Run(); err != nil {
-			slog.Error("error on running app", sl.Err(err))
-			os.Exit(1)
-		}
-	}()
+	app.MustRun()
+	slog.Info("app running")
 
 	closed := make(chan os.Signal, 1)
 

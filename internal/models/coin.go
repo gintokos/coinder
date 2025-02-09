@@ -1,8 +1,13 @@
 package models
 
+
 import (
 	"github.com/shopspring/decimal"
 )
+
+type SearchCoinOpt struct{
+	UserID int64
+}
 
 type DBCoin struct {
 	ID     int    `gorm:"primaryKey;type:integer" json:"id"`

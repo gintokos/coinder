@@ -3,3 +3,43 @@
     padding: 0;
     box-sizing: border-box;
 }
+
+:root {
+    /* Light theme (default) */
+    --background-primary: #ffffff;
+    --background-secondary: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --accent-primary: #ac834a;
+    --accent-secondary: #bbc4df;
+    --accent-thid: #45974b;
+    --border-color: #e0e0e0;
+    --card-background: #ffffff;
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --hover-background: #f0f0f0;
+    --button-background: #ff9500;
+    --button-text: #ffffff;
+    --nav-background: #ffffff;
+    --error-color: #ff3b30;
+    --success-color: #34c759;
+  }
+  
+  /* Dark theme */
+  [data-theme='dark'] {
+    --background-primary: #121212;
+    --background-secondary: #1e1e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-primary: #ff9500;
+    --accent-secondary: #ffb74d;
+    --accent-thid: #bbc4df;
+    --border-color: #2c2c2c;
+    --card-background: #1e1e1e;
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --hover-background: #2c2c2c;
+    --button-background: #ff9500;
+    --button-text: #ffffff;
+    --nav-background: #1a1a1a;
+    --error-color: #ff453a;
+    --success-color: #32d74b;
+  }

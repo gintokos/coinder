@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/gintokos/coinder/internal/config"
@@ -67,6 +68,10 @@ func (d *Database) CreateDataBase() error {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=postgres port=%s sslmode=disable Timezone=UTC",
 		cfg.Host, cfg.User, cfg.Password, cfg.Port,
 	)
+	slog.Debug("Connecting to postgres", slog.String("dsn", dsn), slog.Attr{
+		Key:   "cfg.Database",
+		Value: slog.AnyValue(cfg),
+	})
 
 	db, err := gorm.Open(postgres.Open(dsn), gormConfig)
 	if err != nil {

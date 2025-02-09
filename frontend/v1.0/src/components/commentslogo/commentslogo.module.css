@@ -1,0 +1,9 @@
+.comment{
+    font-size: 2rem;
+}
+
+.button{
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}

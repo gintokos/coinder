@@ -1,97 +1,79 @@
-import CoinCard from '../../components/coincard/СoinСard'
-import classes from './browsing.module.css'
-import { useEffect, useState, useCallback } from 'react'
-import ScrollBtn from '../../components/scrollbtn/ScrollBtn'
+import CoinCard from '../../components/coincard/СoinСard';
+import classes from './browsing.module.css';
+import { useState, useEffect } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Mousewheel, Keyboard, Manipulation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import ScrollBtn from '../../components/scrollbtn/scrollbtn';
 
 export default function Browsing() {
-   const [currentIndex, setCurrentIndex] = useState(0);
-   const [touchStart, setTouchStart] = useState(null);
-   const totalCards = 5;
+    const [swiperRef, setSwiperRef] = useState(null);
+    const [slides, setSlides] = useState([1, 2, 3, 4, 5]);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
-   const handleScrollUp = useCallback(() => {
-       setCurrentIndex(prev => Math.max(prev - 1, 0));
-   }, [])
+    const onReachEnd = () => {
+        if (swiperRef) {
+            const index = swiperRef.activeIndex;
+            setCurrentIndex(index);
+            console.log("end");
+            
+            setSlides(prev => [...prev, prev.length + 1]);
+        }
+    };
 
-   const handleScrollDown = useCallback(() => {
-       setCurrentIndex(prev => Math.min(prev + 1, totalCards - 1));
-   }, [totalCards])
+        useEffect(() => {
+        if (swiperRef && currentIndex !== 0) {
+            swiperRef.slideTo(currentIndex + 1, 0, false);
+        }
+    }, [slides.length]);
 
-   useEffect(() => {
-       const handleWheel = (e) => {
-           e.preventDefault();
+    const isMobile = window.innerWidth <= 680;
 
-           if (e.deltaY > 0) {
-               handleScrollDown();
-           } else {
-               handleScrollUp();
-           }
-       };
-
-       const handleTouchStart = (e) => {
-           setTouchStart(e.touches[0].clientY);
-       };
-
-       const handleTouchMove = (e) => {
-           e.preventDefault();
-           if (!touchStart) return;
-
-           const touchEnd = e.touches[0].clientY;
-           const diff = touchStart - touchEnd;
-
-           if (Math.abs(diff) > 50) {
-               if (diff > 0) {
-                   handleScrollDown();
-               } else {
-                   handleScrollUp();
-               }
-               setTouchStart(null);
-           }
-       };
-
-       const handleTouchEnd = () => {
-           setTouchStart(null);
-       };
-
-       const container = document.querySelector(`.${classes.container}`);
-       
-       container.addEventListener('wheel', handleWheel, { passive: false });
-       container.addEventListener('touchstart', handleTouchStart, { passive: false });
-       container.addEventListener('touchmove', handleTouchMove, { passive: false });
-       container.addEventListener('touchend', handleTouchEnd);
-
-       return () => {
-           container.removeEventListener('wheel', handleWheel);
-           container.removeEventListener('touchstart', handleTouchStart);
-           container.removeEventListener('touchmove', handleTouchMove);
-           container.removeEventListener('touchend', handleTouchEnd);
-       };
-   }, [touchStart, handleScrollDown, handleScrollUp]);
-
-   useEffect(() => {
-       const cards = document.querySelectorAll(`.${classes.card}`);
-       cards[currentIndex]?.scrollIntoView({
-           behavior: 'smooth',
-           block: 'start'
-       });
-   }, [currentIndex]);
-
-   return (
-       <>
-           <div className={classes.container}>
-               <ScrollBtn 
-                   onClick={handleScrollUp} 
-                   className={`${classes.btn} ${classes.up}`} 
-               />
-               <ScrollBtn 
-                   onClick={handleScrollDown} 
-                   className={`${classes.btn} ${classes.down}`} 
-               />
-               <CoinCard coin={1} className={classes.card} />
-               <CoinCard coin={2} className={classes.card} />
-               <CoinCard coin={3} className={classes.card} />
-               <CoinCard coin={4} className={classes.card} />
-               <CoinCard coin={5} className={classes.card} />
-           </div>
-       </>
-   );
+    return (
+        <div className={classes.container}>
+            <Swiper
+                onSwiper={setSwiperRef}
+                modules={[Navigation, Mousewheel, Keyboard, Manipulation]}
+                direction="vertical"
+                slidesPerView={1}
+                spaceBetween={30}
+                centeredSlides={true}
+                mousewheel={true}
+                keyboard={{
+                    enabled: true,
+                }}
+                breakpoints={{
+                    680: {
+                        navigation: {
+                            enabled: true,
+                        },
+                    }
+                }}
+                onReachEnd={onReachEnd}
+                onSlideChange={(swiper) => {
+                    console.log('Текущий слайд:', swiper.activeIndex);
+                }}
+            >
+                {slides.map((coinValue) => (
+                    <SwiperSlide key={coinValue}>
+                        <CoinCard coin={coinValue} />
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+            
+            {!isMobile && (
+                <>
+                    <ScrollBtn 
+                        onClick={() => swiperRef?.slidePrev()} 
+                        className={`${classes.btn} ${classes.up}`} 
+                    />
+                    <ScrollBtn 
+                        onClick={() => swiperRef?.slideNext()} 
+                        className={`${classes.btn} ${classes.down}`} 
+                    />
+                </>
+            )}
+        </div>
+    );
 }

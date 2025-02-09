@@ -4,6 +4,7 @@ class Coin {
        this.name = ''
        this.symbol = ''
        this.slug = ''
+       this.likesAmount = 0
        
        this.lastUpdated = null
        this.dateAdded = null
