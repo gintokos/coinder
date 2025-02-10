@@ -3,6 +3,7 @@ package postgres
 import (
 	"fmt"
 	"log/slog"
+	"reflect"
 	"time"
 
 	"github.com/gintokos/coinder/internal/config"
@@ -54,10 +55,23 @@ func NewDatabase() (*Database, error) {
 func (d *Database) CreateTables() error {
 	db := d.db
 
-	var Allcoins models.DBCoin
-	err := db.AutoMigrate(&Allcoins)
-	if err != nil {
-		return fmt.Errorf("error on automigrating DBcoins: %w", err)
+	tables := []interface{}{
+		&models.DBCoin{},
+		&models.User{},
+		&models.Likes{},
+		&models.Favorite{},
+		&models.Share{},
+		&models.Comment{},
+	}
+
+	for _, table := range tables {
+		tableName := reflect.TypeOf(table).Elem().Name()
+		slog.Info("migrating table", "table", tableName)
+
+		if err := db.AutoMigrate(table); err != nil {
+			return fmt.Errorf("error on automigrating %s: %w", tableName, err)
+		}
+		slog.Info("successfully automigrated table", "table", tableName)
 	}
 
 	return nil
@@ -96,6 +110,6 @@ func (d *Database) CreateDataBase() error {
 			return fmt.Errorf("error on creating database: %w", err)
 		}
 	}
-
+	
 	return nil
 }

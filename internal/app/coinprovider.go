@@ -9,7 +9,7 @@ import (
 
 type coinServiceProvider struct {
 	handlers.CoinHandler
-	services.CoinService
+	*services.CoinService
 	*storage.Storage
 }
 

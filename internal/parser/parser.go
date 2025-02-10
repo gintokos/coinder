@@ -46,7 +46,7 @@ type Config struct {
 }
 
 // database can be nil if run is not using
-func NewParser(cfg Config, db Database) Parser {
+func New(cfg Config, db Database) Parser {
 	return Parser{
 		httpClient: &http.Client{
 			Timeout: cfg.TimeoutForReq,
@@ -55,6 +55,10 @@ func NewParser(cfg Config, db Database) Parser {
 		timestamp: cfg.Timestamp,
 		db:        db,
 	}
+}
+
+func NewDefault() Parser {
+	return New(Config{}, nil)
 }
 
 // method for parser\main.go only
@@ -255,6 +259,6 @@ func (p *Parser) fetchForMeta(coins []models.ParserCoin) error {
 }
 
 // // use withoun run no meta info like logo png
-// func (p *Parser) GetListWithoutMeta(ctx context.Context, idList []int) ([]models.Coin, error) {
-
-// }
+func (p *Parser) GetListWithoutMeta(idList []string) ([]models.ParserCoin, error) {
+	return p.fetchWitoutMeta(100, 1, idList...)
+}

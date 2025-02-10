@@ -1,8 +1,12 @@
 package postgres
 
-import "github.com/gintokos/coinder/internal/models"
+import (
+	"github.com/gintokos/coinder/internal/models"
+	"gorm.io/gorm/clause"
+)
 
 func (d *Database) UpdateUser(user models.User) error {
-
-	return nil
+	return d.db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&user).Error
 }

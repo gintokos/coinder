@@ -15,8 +15,8 @@ type UserService struct {
 	storage UserStorage
 }
 
-func NewUserService(storage UserStorage) UserService {
-	return UserService{
+func NewUserService(storage UserStorage) *UserService {
+	return &UserService{
 		storage: storage,
 	}
 }

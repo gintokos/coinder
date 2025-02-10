@@ -34,7 +34,7 @@ func main() {
 		TimeoutForReq:       viper.GetDuration("parser.timeout_for_req"),
 		ApiKeyCoinMarketCap: viper.GetString("parser.cmc_apikey"),
 	}
-	pars := parser.NewParser(parsCfg, db)
+	pars := parser.New(parsCfg, db)
 	slog.Info("Parser was created")
 
 	ctx, cancel := context.WithCancel(context.Background())

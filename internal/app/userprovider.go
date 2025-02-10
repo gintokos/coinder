@@ -9,7 +9,7 @@ import (
 
 type userServiceProvider struct {
 	handlers.UserHandler
-	services.UserService
+	*services.UserService
 	*storage.Storage
 }
 

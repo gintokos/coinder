@@ -1,12 +1,19 @@
 package models
 
-
 import (
 	"github.com/shopspring/decimal"
 )
 
-type SearchCoinOpt struct{
+type SearchCoinOpt struct {
+	QuerySearchCoinOpt
 	UserID int64
+}
+
+type QuerySearchCoinOpt struct {
+	Page        int
+	Limit       int
+	LikedByUser bool
+	SortedBy    string
 }
 
 type DBCoin struct {
@@ -32,6 +39,9 @@ type DBCoin struct {
 	DBurls      DBurls `gorm:"embedded" json:"urls"`
 	Logo        string `gorm:"type:text" json:"logo"`
 	Description string `gorm:"type:text" json:"description"`
+
+	LikesCount    int `gorm:"type:integer;default:0" json:"likes_count"`
+	CommentsCount int `gorm:"type:integer;default:0" json:"comments_count"`
 }
 
 type DBurls struct {
@@ -46,4 +56,6 @@ type DBurls struct {
 	SourceCode   string `gorm:"type:text" json:"source_code"`
 }
 
-
+func (DBCoin) TableName() string {
+	return "coins"
+}
