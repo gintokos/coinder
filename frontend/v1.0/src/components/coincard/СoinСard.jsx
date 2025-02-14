@@ -8,10 +8,9 @@ import ShareIcon from '../share/share';
 import Urls from '../urls/urls';
 import { Statistic } from 'antd';
 
-
-export default function CoinCard({ coin, className }) {
+export default function CoinCard({ coin }) {
     return (
-        <div className={`${styles.container} ${className}`}>
+        <div className={`${styles.container}`}>
             {coin}
             <div className={`${styles.card}`}>
                 <div className={styles.header}>

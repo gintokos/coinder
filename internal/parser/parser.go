@@ -57,8 +57,10 @@ func New(cfg Config, db Database) Parser {
 	}
 }
 
-func NewDefault() Parser {
-	return New(Config{}, nil)
+func NewDefault(apikey string) Parser {
+	return New(Config{
+		ApiKeyCoinMarketCap: apikey,
+	}, nil)
 }
 
 // method for parser\main.go only

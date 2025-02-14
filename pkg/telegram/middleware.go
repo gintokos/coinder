@@ -124,18 +124,58 @@ func AuthHandler(btoken string, expiration time.Duration, maxage int64, cookieNa
 			return
 		}
 
-		cookie := &http.Cookie{
-			Name:     cookieName,
-			Value:    tokenString,
-			Path:     "/",
-			Domain:   domain,
-			Secure:   secure,
-			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
-			MaxAge:   int(maxage),
-		}
-		http.SetCookie(c.Writer, cookie)
+		setCookie(c, cookieName, tokenString, domain, secure, int(maxage))
 
 		c.JSON(http.StatusOK, gin.H{"message": "Authentication successful"})
 	}
+}
+
+func RefreshTokenHandler(btoken string, expiration time.Duration, cookieName string, domain string, secure bool) gin.HandlerFunc {
+	h := sha256.New()
+	_, err := h.Write([]byte(btoken))
+	if err != nil {
+		panic(err)
+	}
+	secretkey := h.Sum(nil)
+
+	return func(c *gin.Context) {
+		claimsInterface, exists := c.Get("claims")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "no claims found"})
+			return
+		}
+
+		currentClaims, ok := claimsInterface.(jwt.MapClaims)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "invalid claims type"})
+			return
+		}
+
+		currentClaims["exp"] = time.Now().Add(expiration).Unix()
+
+		newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, currentClaims)
+		tokenString, err := newToken.SignedString(secretkey)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		
+		setCookie(c, cookieName, tokenString, domain, secure, int(expiration.Seconds()))
+
+		c.JSON(http.StatusOK, gin.H{"message": "Token refreshed"})
+	}
+}
+
+func setCookie(c *gin.Context, name, value, domain string, secure bool, maxAge int) {
+	cookie := &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		Domain:   domain,
+		Secure:   secure,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   maxAge,
+	}
+	http.SetCookie(c.Writer, cookie)
 }

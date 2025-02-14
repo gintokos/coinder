@@ -3,6 +3,7 @@ package services
 import (
 	"log/slog"
 
+	"github.com/gintokos/coinder/internal/constants"
 	"github.com/gintokos/coinder/internal/models"
 	"github.com/gintokos/coinder/pkg/sl"
 )
@@ -25,7 +26,7 @@ func (s UserService) Update(user models.User) error {
 	err := s.storage.UpdateUser(user)
 	if err != nil {
 		slog.Error("error on updating user", sl.Err(err))
-		return ErrServer
+		return constants.ErrServer
 	}
 	return nil
 }

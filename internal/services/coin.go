@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"log/slog"
 	"strconv"
 	"time"
@@ -9,8 +8,9 @@ import (
 	"github.com/gintokos/coinder/internal/handlers"
 	"github.com/gintokos/coinder/internal/models"
 	"github.com/gintokos/coinder/internal/parser"
+	"github.com/gintokos/coinder/pkg/gerror"
 	"github.com/gintokos/coinder/pkg/sl"
-	"gorm.io/gorm"
+	"github.com/spf13/viper"
 )
 
 var _ handlers.CoinService = (*CoinService)(nil)
@@ -31,7 +31,7 @@ type CoinService struct {
 }
 
 func NewCoinService(storage CoinStorage) *CoinService {
-	ps := parser.NewDefault()
+	ps := parser.NewDefault(viper.GetString("parser.cmc_apikey"))
 
 	return &CoinService{
 		Parser:  ps,
@@ -42,11 +42,8 @@ func NewCoinService(storage CoinStorage) *CoinService {
 func (s *CoinService) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error) {
 	dbcoins, err := s.storage.DefaultSearchCoins(opt)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrNotFound
-		}
 		slog.Error("error in getting coins from database: ", sl.Err(err))
-		return nil, ErrServer
+		return nil, err
 	}
 
 	s.Update(dbcoins)
@@ -55,6 +52,10 @@ func (s *CoinService) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBC
 }
 
 func (s *CoinService) Update(dbcoins []models.DBCoin) {
+	if len(dbcoins) == 0 {
+		return
+	}
+
 	timer := time.NewTimer(PARSER_TIMEOUT)
 	done := make(chan struct{})
 	success := false
@@ -69,7 +70,7 @@ func (s *CoinService) Update(dbcoins []models.DBCoin) {
 
 		parscoins, err := s.Parser.GetListWithoutMeta(ids)
 		if err != nil || len(parscoins) == 0 {
-			slog.Error("error on getting coins from parser: ", sl.Err(err))
+			slog.Error("error on getting coins from parser for req: ", sl.Err(err))
 			return
 		}
 
@@ -91,7 +92,7 @@ func (s *CoinService) Update(dbcoins []models.DBCoin) {
 		go func() {
 			err := s.storage.UpdateCoins(dbcoins)
 			if err != nil {
-				slog.Error("error on updating coins: ", sl.Err(err))
+				slog.Error("error on updating coins: ", gerror.FullError(err))
 			}
 		}()
 	}

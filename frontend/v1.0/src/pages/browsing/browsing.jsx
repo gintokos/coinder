@@ -1,32 +1,30 @@
 import CoinCard from '../../components/coincard/СoinСard';
 import classes from './browsing.module.css';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Mousewheel, Keyboard, Manipulation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import ScrollBtn from '../../components/scrollbtn/scrollbtn';
+import ReactDOM from 'react-dom/client';
 
 export default function Browsing() {
     const [swiperRef, setSwiperRef] = useState(null);
-    const [slides, setSlides] = useState([1, 2, 3, 4, 5]);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    let index = 5;
 
-    const onReachEnd = () => {
+    const appendNewSlide = () => {
         if (swiperRef) {
-            const index = swiperRef.activeIndex;
-            setCurrentIndex(index);
-            console.log("end");
+            index += 1;
             
-            setSlides(prev => [...prev, prev.length + 1]);
+            const slideContainer = document.createElement('div');
+            slideContainer.className = 'swiper-slide';
+            
+            swiperRef.appendSlide(slideContainer);
+            
+            const root = ReactDOM.createRoot(slideContainer);
+            root.render(<CoinCard coin={index} />);
         }
     };
-
-        useEffect(() => {
-        if (swiperRef && currentIndex !== 0) {
-            swiperRef.slideTo(currentIndex + 1, 0, false);
-        }
-    }, [slides.length]);
 
     const isMobile = window.innerWidth <= 680;
 
@@ -50,12 +48,12 @@ export default function Browsing() {
                         },
                     }
                 }}
-                onReachEnd={onReachEnd}
+                onReachEnd={appendNewSlide}
                 onSlideChange={(swiper) => {
                     console.log('Текущий слайд:', swiper.activeIndex);
                 }}
             >
-                {slides.map((coinValue) => (
+                {Array.from({length: 5}, (_, i) => i + 1).map((coinValue) => (
                     <SwiperSlide key={coinValue}>
                         <CoinCard coin={coinValue} />
                     </SwiperSlide>

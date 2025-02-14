@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gintokos/coinder/internal/models"
+	"github.com/gintokos/coinder/pkg/middleware"
 )
 
 type UserService interface {
@@ -39,7 +40,7 @@ func (h *UserHandler) User(c *gin.Context) {
 
 func (h *UserHandler) Update(c *gin.Context) {
 	slog.Info("handlers.user.update")
-	user := UserFromClaims(c)
+	user := middleware.UserFromClaims(c)
 
 	err := h.service.Update(user)
 	if err != nil {
