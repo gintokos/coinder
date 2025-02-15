@@ -146,16 +146,28 @@ class CoinderApi {
             .map(([key, value]) => `${key}=${value}`)
             .join('\n');
     
-        return await this.fetch("/auth", {
+        await this.fetch("/auth", {
             method: HTTP_METHODS.POST,
             body: {...credentials}
         });
+        
+        return await this.updateUser()
     }
 
     logout = async () => {
         return await this.fetch("/auth/logout", {
             method: HTTP_METHODS.POST
         });
+    }
+    
+    updateUser = async () => {
+        try {
+            await this.fetch("/user/update", {
+                method: HTTP_METHODS.POST
+            })
+        } catch (error) {
+            console.error("error no updating user")
+        }
     }
 }
 

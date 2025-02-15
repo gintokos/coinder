@@ -4,12 +4,25 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
+
+// to do benchmark of goroutins or just call f
+var timeNow int64
+
+func init() {
+	go func() {
+		for {
+			timeNow = time.Now().Unix()
+			time.Sleep(time.Second * 60)
+		}
+	}()
+}
 
 type TauthData struct {
 	ID        int64  `json:"id"`
@@ -20,6 +33,24 @@ type TauthData struct {
 	Hash      string `json:"hash"`
 }
 
+type TClaims struct {
+	TauthData
+	ExpiredAt int64  `json:"exp"`
+	Source    string `json:"source"`
+}
+
+func (c TClaims) Valid() error {
+	if timeNow > c.ExpiredAt {
+		return fmt.Errorf("token expired")
+	}
+	return nil
+}
+
+// sets claims in context with type tClaims fields:
+//
+//	TauthData
+//	ExpiredAt int64  `json:"exp"`
+//	Source    string `json:"source"`
 func AuthMiddleware(cookieName string, btoken string) gin.HandlerFunc {
 	h := sha256.New()
 	_, err := h.Write([]byte(btoken))
@@ -35,7 +66,8 @@ func AuthMiddleware(cookieName string, btoken string) gin.HandlerFunc {
 			return
 		}
 
-		tkn, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		claims := &TClaims{}
+		tkn, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
@@ -46,7 +78,7 @@ func AuthMiddleware(cookieName string, btoken string) gin.HandlerFunc {
 			return
 		}
 
-		if claims, ok := tkn.Claims.(jwt.MapClaims); ok && tkn.Valid {
+		if tkn.Valid {
 			c.Set("claims", claims)
 			c.Next()
 		} else {
@@ -107,14 +139,10 @@ func AuthHandler(btoken string, expiration time.Duration, maxage int64, cookieNa
 			return
 		}
 
-		claims := jwt.MapClaims{
-			"source":     source,
-			"id":         respweb.Data.ID,
-			"first_name": respweb.Data.FirstName,
-			"username":   respweb.Data.Username,
-			"photo_url":  respweb.Data.PhotoURL,
-			"auth_date":  respweb.Data.AuthDate,
-			"exp":        time.Now().Add(expiration).Unix(),
+		claims := TClaims{
+			TauthData: respweb.Data,
+			Source:    source,
+			ExpiredAt: time.Now().Add(expiration).Unix(),
 		}
 
 		tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -145,13 +173,13 @@ func RefreshTokenHandler(btoken string, expiration time.Duration, cookieName str
 			return
 		}
 
-		currentClaims, ok := claimsInterface.(jwt.MapClaims)
+		currentClaims, ok := claimsInterface.(*TClaims)
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "invalid claims type"})
 			return
 		}
 
-		currentClaims["exp"] = time.Now().Add(expiration).Unix()
+		currentClaims.ExpiredAt = time.Now().Add(expiration).Unix()
 
 		newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, currentClaims)
 		tokenString, err := newToken.SignedString(secretkey)
@@ -159,7 +187,7 @@ func RefreshTokenHandler(btoken string, expiration time.Duration, cookieName str
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		
+
 		setCookie(c, cookieName, tokenString, domain, secure, int(expiration.Seconds()))
 
 		c.JSON(http.StatusOK, gin.H{"message": "Token refreshed"})
@@ -178,4 +206,25 @@ func setCookie(c *gin.Context, name, value, domain string, secure bool, maxAge i
 		MaxAge:   maxAge,
 	}
 	http.SetCookie(c.Writer, cookie)
+}
+
+// middleware for using in local if need claims in logic of app and running without some domain for telegram
+// sets some default claims and all reqs will be provided with this claims
+func TestMiddleware(data TauthData) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		source := c.GetHeader("T-Source-H")
+		if source != "web" && source != "miniapp" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "bad request"})
+			return
+		}
+
+		claims := TClaims{
+			TauthData: data,
+			Source:    source,
+			ExpiredAt: time.Now().Add(time.Hour * 144).Unix(),
+		}
+
+		c.Set("claims", claims)
+		c.Next()
+	}
 }

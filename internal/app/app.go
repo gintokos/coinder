@@ -13,8 +13,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	appcfg "github.com/gintokos/coinder/internal/config"
-	"github.com/gintokos/coinder/internal/storage"
 	"github.com/gintokos/coinder/internal/middleware"
+	"github.com/gintokos/coinder/internal/storage"
 	"github.com/gintokos/coinder/pkg/sl"
 	"github.com/gintokos/coinder/pkg/telegram"
 	"github.com/spf13/viper"
@@ -39,7 +39,9 @@ type App struct {
 }
 
 func NewApp(db *storage.Storage) (*App, error) {
-	a := App{}
+	a := App{
+		database: db,
+	}
 	a.context, a.ctxcancel = context.WithCancel(context.Background())
 
 	return &a, a.initDeps()
@@ -101,8 +103,8 @@ func (a *App) initRouter() error {
 
 	// in local with ngrok redirect all requests to http://localhost:5173 where should be running vite dev server
 	env := viper.GetString("env")
-	switch env {
-	case appcfg.LOCAL_WITH_NGROK:
+
+	if env == appcfg.LOCAL || env == appcfg.LOCAL_WITH_NGROK {
 		r.Use(func(c *gin.Context) {
 			if strings.HasSuffix(c.Request.URL.Path, ".js") {
 				c.Header("Content-Type", "application/javascript; charset=utf-8")
@@ -135,16 +137,27 @@ func (a *App) initRouter() error {
 	// auth middleware and handler
 	token := viper.GetString("botToken")
 	cookieName := "ta_t"
-	a.api.POST("/auth", telegram.AuthHandler(token, time.Hour*24*7, 24, cookieName, a.domain, false))
-	a.api.Use(telegram.AuthMiddleware(cookieName, token))
+	if env != appcfg.LOCAL {
+		a.api.POST("/auth", telegram.AuthHandler(token, time.Hour*24*7, 24, cookieName, a.domain, false))
+		a.api.Use(telegram.AuthMiddleware(cookieName, token))
+	} else {
+		a.api.Use(telegram.TestMiddleware(telegram.TauthData{
+			ID:        128389,
+			FirstName: "test_user",
+			Username:  "test_username",
+			PhotoURL:  "https://t.me/i/userpic/320/GfOke9XNyVTOgIQ7JMewCAqQ6oqOfLNzDRAWf4DxhyQ.jpg",
+			AuthDate:  1238615,
+			Hash:      "randomhash",
+		}))
+	}
+	// refresh token
+	a.api.GET("/auth/refresh", telegram.RefreshTokenHandler(token, time.Hour*24*7, cookieName, a.domain, false))
 	// endpoint checks is authed
 	a.api.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"pong": "success",
 		})
 	})
-	// refresh token
-	a.api.GET("/auth/refresh", telegram.RefreshTokenHandler(token, time.Hour*24*7, cookieName, a.domain, false))
 
 	a.router = r
 	slog.Info("Router was created")
@@ -194,7 +207,7 @@ func (a *App) MustRun() error {
 
 		a.startServer(tun)
 
-	case appcfg.LOCAL:
+	default:
 		a.startServer()
 	}
 

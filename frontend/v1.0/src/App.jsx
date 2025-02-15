@@ -4,8 +4,9 @@ import Browsing from "./pages/browsing/Browsing.jsx"
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./thunk/auth.js"
-import { coinderApi } from "./api/api.js";
-import { login } from "./redux/auth.js";
+import Auth from "./pages/auth/auth.jsx";
+import { RequireAuth } from "./hoc/requireauth.jsx"
+import { NotFound } from "./pages/errorpage/notFound.jsx"
 
 function App() {
   const dispatch = useDispatch()
@@ -16,10 +17,15 @@ function App() {
   return (
     <>
       <Routes>
-        <Route />
         <Route path="/" element={<Page />}>
           <Route index element={<>YA GLAVNAYA</>} />
-          <Route path="browsing" element={<Browsing />} />
+          <Route path="auth" element={<Auth/>}/>
+
+          <Route path="p/" element={<RequireAuth/>} >
+            <Route path="browsing" element={<Browsing />} />
+          </Route>
+
+          <Route path="*" element={<NotFound/>} />
         </Route>  
       </Routes>
     </>

@@ -15,11 +15,7 @@ export default function Page() {
         <Header />
       </Layout.Header>
       <Layout.Content className={classes.content}>
-        {auth.isAuth ? (
-          <Outlet />
-        ) : (
-          <Auth/>
-        )}
+        <Outlet />
       </Layout.Content>
       <Layout.Footer className={classes.footer}>
         <Footer />

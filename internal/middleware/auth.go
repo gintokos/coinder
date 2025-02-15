@@ -3,19 +3,21 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gintokos/coinder/internal/models"
-	"github.com/golang-jwt/jwt"
+	"github.com/gintokos/coinder/pkg/telegram"
 )
 
 func UserFromClaims(c *gin.Context) models.User {
 	cl, _ := c.Get("claims")
-	claims := *cl.(*jwt.MapClaims)
-
-	return models.User{
-		ID:        claims["id"].(int64),
-		FirstName: claims["first_name"].(string),
-		Username:  claims["username"].(string),
-		PhotoUrl:  claims["photo_url"].(string),
-		AuthDate:  claims["auth_date"].(string),
+	claims, ok := cl.(*telegram.TClaims)
+	if !ok {
+		panic("invalid claims type in context")
 	}
 
+	return models.User{
+		ID:        claims.ID,
+		FirstName: claims.FirstName,
+		Username:  claims.Username,
+		PhotoUrl:  claims.PhotoURL,
+		AuthDate:  claims.AuthDate,
+	}
 }
