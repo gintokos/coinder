@@ -91,7 +91,6 @@ func (mbot *Bot) handleCommand(update *models.Update) bool {
 				},
 			},
 		}
-		// TO DO more commands
 	}
 
 	if params != nil {

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gintokos/coinder/internal/models"
 	"github.com/gintokos/coinder/pkg/gerror"
-	"github.com/gintokos/coinder/pkg/middleware"
+	"github.com/gintokos/coinder/internal/middleware"
 )
 
 type CoinService interface {

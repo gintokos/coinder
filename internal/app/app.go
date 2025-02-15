@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	appcfg "github.com/gintokos/coinder/internal/config"
 	"github.com/gintokos/coinder/internal/storage"
-	"github.com/gintokos/coinder/pkg/middleware"
+	"github.com/gintokos/coinder/internal/middleware"
 	"github.com/gintokos/coinder/pkg/sl"
 	"github.com/gintokos/coinder/pkg/telegram"
 	"github.com/spf13/viper"

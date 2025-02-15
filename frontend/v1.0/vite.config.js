@@ -8,7 +8,7 @@ export default defineConfig({
     host: true,
     strictPort: true,
     allowedHosts: [
-      'awfully-evident-sole.ngrok-free.app',
+      'epic-sensibly-gannet.ngrok-free.app',
       'localhost',
     ]
   }
