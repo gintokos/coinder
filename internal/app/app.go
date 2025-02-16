@@ -141,14 +141,9 @@ func (a *App) initRouter() error {
 		a.api.POST("/auth", telegram.AuthHandler(token, time.Hour*24*7, 24, cookieName, a.domain, false))
 		a.api.Use(telegram.AuthMiddleware(cookieName, token))
 	} else {
+		// local sets standart user for all reqs
 		a.api.Use(telegram.TestMiddleware(telegram.TauthData{
-			ID:        128389,
-			FirstName: "test_user",
-			Username:  "test_username",
-			PhotoURL:  "https://t.me/i/userpic/320/GfOke9XNyVTOgIQ7JMewCAqQ6oqOfLNzDRAWf4DxhyQ.jpg",
-			AuthDate:  1238615,
-			Hash:      "randomhash",
-		}))
+			
 	}
 	// refresh token
 	a.api.GET("/auth/refresh", telegram.RefreshTokenHandler(token, time.Hour*24*7, cookieName, a.domain, false))
@@ -179,11 +174,16 @@ func (a *App) initCoinServiceProvider() error {
 func (a *App) initServer() error {
 	server := &http.Server{
 		Handler:           a.router,
+		Addr:              viper.GetString("server.host") + ":" + viper.GetString("server.port"),
 		ReadTimeout:       viper.GetDuration("server.readTimeout"),
 		WriteTimeout:      viper.GetDuration("server.writeTimeout"),
 		IdleTimeout:       viper.GetDuration("server.idleTimeout"),
 		ReadHeaderTimeout: viper.GetDuration("server.readHeaderTimeout"),
 	}
+	slog.Debug("Server inited", slog.Attr{
+		Key:   "addr",
+		Value: slog.StringValue(server.Addr),
+	})
 	a.server = server
 
 	slog.Info("Server was created")

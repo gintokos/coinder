@@ -173,5 +173,3 @@ class CoinderApi {
 
 const BASE_URL = import.meta.env.VITE_DOMAIN
 export const coinderApi = new CoinderApi(BASE_URL)
-
-coinderApi.ping().then(result => console.log(result))
