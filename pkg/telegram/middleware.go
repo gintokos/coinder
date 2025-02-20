@@ -175,7 +175,7 @@ func RefreshTokenHandler(btoken string, expiration time.Duration, cookieName str
 
 		currentClaims, ok := claimsInterface.(*TClaims)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "invalid claims type"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid claims type"})
 			return
 		}
 
@@ -218,7 +218,7 @@ func TestMiddleware(data TauthData) gin.HandlerFunc {
 			return
 		}
 
-		claims := TClaims{
+		claims := &TClaims{
 			TauthData: data,
 			Source:    source,
 			ExpiredAt: time.Now().Add(time.Hour * 144).Unix(),

@@ -4,42 +4,56 @@
     box-sizing: border-box;
 }
 
+
 :root {
-    /* Light theme (default) */
-    --background-primary: #ffffff;
-    --background-secondary: #ffffff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --accent-primary: #ac834a;
-    --accent-secondary: #bbc4df;
-    --accent-thid: #45974b;
-    --border-color: #e0e0e0;
-    --card-background: #ffffff;
-    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --hover-background: #f0f0f0;
-    --button-background: #ff9500;
-    --button-text: #ffffff;
-    --nav-background: #ffffff;
-    --error-color: #ff3b30;
-    --success-color: #34c759;
-  }
+  --background-primary: #0A0F25;    /* Основной фон */
+  --background-secondary: #151C38;   /* Фон для header и footer */
+  --background-tertiary: #1E2843;    /* Фон для карточек */
   
-  /* Dark theme */
-  [data-theme='dark'] {
-    --background-primary: #121212;
-    --background-secondary: #1e1e1e;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --accent-primary: #ff9500;
-    --accent-secondary: #ffb74d;
-    --accent-thid: #bbc4df;
-    --border-color: #2c2c2c;
-    --card-background: #1e1e1e;
-    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    --hover-background: #2c2c2c;
-    --button-background: #ff9500;
-    --button-text: #ffffff;
-    --nav-background: #1a1a1a;
-    --error-color: #ff453a;
-    --success-color: #32d74b;
-  }
+  /* Цвета текста */
+  --text-primary: #FFFFFF;          /* Основной текст */
+  --text-secondary: #B8B8B8;        /* Второстепенный текст */
+  --text-tertiary: #878787;         /* Описания и подписи */
+  
+  /* Акцентные цвета */
+  --accent-primary: #2196F3;        /* Основной акцент */
+  --accent-secondary: #0D1117;      /* Фон контента */
+  /* Основные цвета */
+  --primary-dark: #0A0F25;     /* Тёмно-синий для фона */
+  --primary-light: #1E2843;    /* Светло-синий для элементов */
+  --accent-green: #4ab900;     /* Неоновый зелёный для акцентов */
+  --accent-blue: #2196F3;      /* Яркий синий для кнопок */
+  --accent-purple: #7B61FF;    /* Фиолетовый для выделения */
+
+  /* Нейтральные цвета */
+  --neutral-100: #FFFFFF;      /* Белый */
+  --neutral-200: #F5F5F5;      /* Светло-серый */
+  --neutral-300: #E0E0E0;      /* Серый */
+  --neutral-400: #BDBDBD;      /* Средне-серый */
+  --neutral-500: #9E9E9E;      /* Тёмно-серый */
+
+  /* Статусные цвета */
+  --success: #00c251;          /* Зелёный для позитивных значений */
+  --error: #df003b;            /* Красный для негативных значений */
+  --warning: #FFB300;          /* Оранжевый для предупреждений */
+
+  /* Градиенты */
+  --gradient-primary: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+
+  /* Тени */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.14);
+  --shadow-xl: 0 10px 80px rgba(33, 150, 243, 0.1);  /* Тень с цветным свечением */
+
+  /* Прозрачности */
+  --overlay-dark: rgba(10, 15, 37, 0.8);
+  --overlay-light: rgba(255, 255, 255, 0.1);
+
+  /* Скругления */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+}

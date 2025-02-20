@@ -18,7 +18,7 @@ func (d *Database) UpdateCoins(coins []models.DBCoin) error {
                 SET LOCAL maintenance_work_mem = '512MB';     
                 SET LOCAL temp_buffers = '32MB';          
             `).Error; err != nil {
-				return gerror.New(err, constants.ErrDatabase , 500)
+				return gerror.New(err, constants.ErrDatabase, 500)
 			}
 		}
 
@@ -53,13 +53,16 @@ func (d *Database) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin
 	}
 
 	var coins []models.DBCoin
-	result := query.Offset(opt.Limit * opt.Page).Limit(opt.Limit).Find(&coins)
+	result := query.Offset((opt.Page - 1) * opt.Limit).Limit(opt.Limit).Find(&coins)
 
-	if result.Error != nil && errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil, gerror.New(result.Error, constants.ErrNotFound, 404)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, gerror.New(result.Error, constants.ErrNotFound, 404)
+		}
+		return nil, gerror.New(result.Error, constants.ErrServer, 500)
 	}
 
-	return coins, gerror.New(result.Error, constants.ErrServer, 500)
+	return coins, nil
 }
 
 func (d *Database) addOnlyUnlikedCoins(tx *gorm.DB, userID int64) *gorm.DB {

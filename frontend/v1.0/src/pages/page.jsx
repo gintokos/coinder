@@ -1,25 +1,21 @@
-import { Layout } from 'antd'
-import Header from '../components/header/header'
-import Footer from '../components/footer/footer'
-import classes from './page.module.css'
-import { Outlet } from 'react-router'
-import { useSelector} from "react-redux"
-import Auth from './auth/auth'
+import React from 'react';
+import { Outlet } from 'react-router';
+import Header from '../components/header/header';
+import Footer from '../components/footer/footer';
+import classes from './Page.module.css';
 
-export default function Page() {
-  const auth = useSelector((state) => state.auth)
-
+const Page = () => {
   return (
-    <Layout className={classes.layout}>
-      <Layout.Header className={classes.header}>
-        <Header />
-      </Layout.Header>
-      <Layout.Content className={classes.content}>
+    <div className={classes.layout}>
+      <main className={classes.content}>
         <Outlet />
-      </Layout.Content>
-      <Layout.Footer className={classes.footer}>
+      </main>
+      
+      <footer className={classes.footer}>
         <Footer />
-      </Layout.Footer>
-    </Layout>
+      </footer>
+    </div>
   );
-}
+};
+
+export default Page;

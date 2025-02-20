@@ -1,74 +1,70 @@
-import { useState } from 'react';
-import styles from './coincard.module.css';
-import Price from '../price/Price';
-import Likes from '../likes/likes';
-import CommentsLogo from '../commentslogo/commentslogo';
-import FavoriteIcon from '../favorite/favorite';
-import ShareIcon from '../share/share';
-import Urls from '../urls/urls';
-import { Statistic } from 'antd';
+import Card from "../../components/card/card"
+import styles from "./coinCard.module.css"
+import { useState } from 'react'
+import Price from "../price/Price"
+import NNumber from "../number/number"
+import Modal from "../modal/modal"
+import { useModal } from "../../hooks/modal"
+
+import { HeartIcon, CommentsIcon } from "../icons/icons"
+import { useDoubleTap } from "../../hooks/double"
 
 export default function CoinCard({ coin }) {
+    console.log("coincard render")
+
+    const [liked, setLiked] = useState(coin.isLiked)
+    const [likeamount, setLikeAmount] = useState(coin.likes_count)
+    const [isAnimating, setIsAnimating] = useState(false)
+    const handleLike = () => {
+        setLikeAmount(prev => liked ? prev - 1 : prev + 1)
+        setLiked(prev => !prev)
+        setIsAnimating(true)
+        setTimeout(() => setIsAnimating(false), 500)
+    }
+    const doubleTapBind = useDoubleTap(handleLike)
+
+    const [isModalOpen, openModal, closeModal] = useModal()
+
     return (
-        <div className={`${styles.container}`}>
-            {coin}
-            <div className={`${styles.card}`}>
+        <Card>
+            <div className={styles.clickable} {...doubleTapBind}
+             >
                 <div className={styles.header}>
-                    <h2 className={styles.slug}>Bitcoin</h2>
-                    <h3 className={styles.symbol}>BTC</h3>
+                    <div className={styles.titles_container}>
+                        <h3 className={styles.slug}>{coin.slug.toUpperCase()}</h3>
+                        <h4 className={styles.symbol}>{coin.symbol}</h4>
+                    </div>
                 </div>
-                <div className={styles.content}>
+
+                <div className={styles.price_container}>
                     <Price coin={coin} />
-                    <div className={styles.container2}>
-                        <div className={styles.metacontainer}>
-                            <span className={styles.metatitle}>
-                                Volume24h
-                            </span>
-                            <div className={styles.value}>
-                                <Statistic
-                                    value={123518713251}
-                                    suffix= {<span className={styles.usd}>$</span>}
-                                    valueStyle={{
-                                        color: "var(--accent-primary)"
-                                    }}
-                                    />
-                            </div>
-                            <span className={styles.metatitle}>
-                                Volumechange24h
-                            </span>
-                            <div className={styles.value}>
-                                <Statistic
-                                    value={31243125}
-                                    suffix= {<span className={styles.usd}>$</span>}
-                                    valueStyle={{
-                                        color: "var(--accent-primary)"
-                                    }}
-                                    />
-                            </div>
-                            <span className={styles.metatitle}>
-                                Marcetcap
-                            </span>
-                            <div className={`${styles.value} ${styles.last}`}>
-                                <Statistic
-                                    value={94871239867}
-                                    suffix= {<span className={styles.usd}>$</span>}
-                                    valueStyle={{
-                                        color: "var(--accent-primary)"
-                                    }}
-                                    />
-                            </div>
-                            <div className={styles.urls}></div>
-                            <Urls />
-                        </div>
-                    </div>
-                    <div className={styles.sidemenu}>
-                        <Likes id={coin} initLiked={false} />
-                        <CommentsLogo coin={coin} />
-                        <FavoriteIcon style={{ fontSize: "2rem" }} />
-                        <ShareIcon style={{ fontSize: "2rem" }} />
-                    </div>
+                </div>
+
+                <div className={styles.websites_container}>
+                    <h5>Want to know more? check related Websites</h5>
+                    <button className={styles.button} onClick={openModal}>
+                        Websites
+                    </button>
+                    <Modal isOpen={isModalOpen} onClose={closeModal}>
+                        <h2>Заголовок</h2>
+                        <p>Контент модального окна</p>
+                    </Modal>
+                </div>
+
+                <div className={styles.footer}>
+                        <button 
+                                className={`${styles.icon_button} ${isAnimating ? styles.animate_like : ''}`} 
+                                onClick={handleLike}
+                            >
+                        <HeartIcon className={`${styles.icon} ${styles.heart}`} filled={liked} />
+                        <NNumber count={likeamount} />
+                    </button>
+                    <button className={styles.icon_button}>
+                        <CommentsIcon className={styles.icon} />
+                        <NNumber count={coin.comments_count} />
+                    </button>
                 </div>
             </div>
-        </div>
-    );
+        </Card>
+    )
 }

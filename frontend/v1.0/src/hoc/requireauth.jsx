@@ -1,17 +1,17 @@
 import { useLocation, Navigate } from "react-router"
-import store from "../redux/store"
-
+import { useSelector } from 'react-redux'
 import { Outlet } from "react-router"
-
 
 export function RequireAuth() {
     const location = useLocation()
-    const auth = store.getState().auth
+    const auth = useSelector(state => state.auth)
+
+    if (auth.loading) {
+        return <div>Loading...</div>
+    }
 
     if (auth.isAuth) {
-        return (
-            <Outlet/>
-        )
+        return <Outlet/>
     } else {
         return <Navigate to="/auth" state={{from:location}} />
     }

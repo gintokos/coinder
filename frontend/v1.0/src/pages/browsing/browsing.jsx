@@ -1,77 +1,70 @@
-import CoinCard from '../../components/coincard/СoinСard';
-import classes from './browsing.module.css';
-import { useState } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Mousewheel, Keyboard, Manipulation } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import ScrollBtn from '../../components/scrollbtn/scrollbtn';
-import ReactDOM from 'react-dom/client';
+import { Link } from "react-router"
+import Card from "../../components/card/card"
+import styles from "./browsing.module.css"
+import { useState } from 'react'
 
 export default function Browsing() {
-    const [swiperRef, setSwiperRef] = useState(null);
-    let index = 5;
+    console.log("Browsing render")
+    const [sortOption, setSortOption] = useState('') 
+    const [showLiked, setShowLiked] = useState(false)
 
-    const appendNewSlide = () => {
-        if (swiperRef) {
-            index += 1;
-            
-            const slideContainer = document.createElement('div');
-            slideContainer.className = 'swiper-slide';
-            
-            swiperRef.appendSlide(slideContainer);
-            
-            const root = ReactDOM.createRoot(slideContainer);
-            root.render(<CoinCard coin={index} />);
-        }
-    };
-
-    const isMobile = window.innerWidth <= 680;
 
     return (
-        <div className={classes.container}>
-            <Swiper
-                onSwiper={setSwiperRef}
-                modules={[Navigation, Mousewheel, Keyboard, Manipulation]}
-                direction="vertical"
-                slidesPerView={1}
-                spaceBetween={30}
-                centeredSlides={true}
-                mousewheel={true}
-                keyboard={{
-                    enabled: true,
-                }}
-                breakpoints={{
-                    680: {
-                        navigation: {
-                            enabled: true,
-                        },
-                    }
-                }}
-                onReachEnd={appendNewSlide}
-                onSlideChange={(swiper) => {
-                    console.log('Текущий слайд:', swiper.activeIndex);
-                }}
-            >
-                {Array.from({length: 5}, (_, i) => i + 1).map((coinValue) => (
-                    <SwiperSlide key={coinValue}>
-                        <CoinCard coin={coinValue} />
-                    </SwiperSlide>
-                ))}
-            </Swiper>
-            
-            {!isMobile && (
-                <>
-                    <ScrollBtn 
-                        onClick={() => swiperRef?.slidePrev()} 
-                        className={`${classes.btn} ${classes.up}`} 
-                    />
-                    <ScrollBtn 
-                        onClick={() => swiperRef?.slideNext()} 
-                        className={`${classes.btn} ${classes.down}`} 
-                    />
-                </>
-            )}
-        </div>
-    );
+        <Card>
+            <div className={styles.container}>
+                <h2>Search settings</h2>
+                
+                <div className={styles.sortingSection}>
+                    <h3>Sort by:</h3>
+                    <label>
+                        <input
+                            type="radio"
+                            name="sortOption" 
+                            value="price"
+                            checked={sortOption === 'price'}
+                            onChange={(e) => setSortOption(e.target.value)}
+                        />
+                        <span>Price</span>
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="sortOption"
+                            value="marketCap"
+                            checked={sortOption === 'marketCap'}
+                            onChange={(e) => setSortOption(e.target.value)}
+                        />
+                        <span>Market Cap</span>
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="sortOption"
+                            value="popularity"
+                            checked={sortOption === 'popularity'}
+                            onChange={(e) => setSortOption(e.target.value)}
+                        />
+                        <span>Popularity</span>
+                    </label>
+                </div>
+
+                <div className={styles.filterSection}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showLiked}
+                            onChange={() => setShowLiked(!showLiked)}
+                        />
+                        <span>Show liked</span>
+                    </label>
+                </div>
+
+                <div className={styles.resultSection}>
+                    <Link className={styles.showResults} to="/browsing/feed">
+                        Show Results
+                    </Link>
+                </div>
+            </div>
+        </Card>
+    )
 }

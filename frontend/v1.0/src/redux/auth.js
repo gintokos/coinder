@@ -8,7 +8,7 @@ const initialState = {
     firstName: '',
     photoUrl: '',
     authDate: '',
-    loading: false,
+    loading: true,
     checkError: null,
     webAuthError: null,
 }

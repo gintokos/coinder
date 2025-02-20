@@ -3,7 +3,7 @@
     height: 40px;
     border: none;
     border-radius: 50%;
-    background-color: #acacac;
+    background-color: var(--background-tertiary);
     box-shadow: 0 2px 6px rgba(233, 2, 2, 0.15);
     cursor: pointer;
     display: flex;
@@ -11,6 +11,12 @@
     justify-content: center;
 }
 
-.scrollButton:hover svg path {
-    stroke: #ffffff;
+.scrollButton svg path {
+    stroke: var(--accent-blue);
+}
+
+@media (max-width: 680px) {
+    .scrollButton{
+        display: none;
+    }
 }

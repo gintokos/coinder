@@ -46,7 +46,7 @@ func (s *CoinService) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBC
 		return nil, err
 	}
 
-	s.Update(dbcoins)
+	// s.Update(dbcoins)
 
 	return dbcoins, nil
 }
@@ -92,7 +92,7 @@ func (s *CoinService) Update(dbcoins []models.DBCoin) {
 		go func() {
 			err := s.storage.UpdateCoins(dbcoins)
 			if err != nil {
-				slog.Error("error on updating coins: ", gerror.FullError(err))
+				slog.Error("error on updating coins: ", "error", gerror.FullError(err))
 			}
 		}()
 	}

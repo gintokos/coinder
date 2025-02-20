@@ -30,6 +30,7 @@ class CoinderApi {
         console.log(baseurl)
         this.#baseurl = baseurl;
         this.#timeout = timeout;
+        this.dispatch = undefined
     }
 
     #getSource = () => {
@@ -43,9 +44,9 @@ class CoinderApi {
     #handleResponse = async (response) => {
         if (!response.ok) {
             const errorData = await response.json().catch(() => null);
-            
             switch (response.status) {
                 case 401:
+                    this.dispatch({ type: 'auth/logout' })
                     throw new ApiError('Unauthorized', 401, errorData);
                 case 403:
                     throw new ApiError('Forbidden', 403, errorData);
@@ -167,6 +168,17 @@ class CoinderApi {
             })
         } catch (error) {
             console.error("error no updating user")
+        }
+    }
+
+    // to do 
+    coins = async (sOptions) => {
+        try {
+            return await this.fetch("/coins/default", {
+                method: HTTP_METHODS.POST,
+            })
+        } catch (error) {
+            console.error("error on getting coins", error)
         }
     }
 }

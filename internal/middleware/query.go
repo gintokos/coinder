@@ -57,7 +57,7 @@ func QueryMiddleware() func(c *gin.Context) {
 			return
 		}
 
-		likedByUserStr := c.DefaultQuery("likedByUser", "false")
+		likedByUserStr := c.DefaultQuery("likedByUser", "true")
 		likedByUser, err := strconv.ParseBool(likedByUserStr)
 		if err != nil {
 			sendBadReq(c, "Invalid likedByUser param")

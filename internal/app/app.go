@@ -143,7 +143,13 @@ func (a *App) initRouter() error {
 	} else {
 		// local sets standart user for all reqs
 		a.api.Use(telegram.TestMiddleware(telegram.TauthData{
-			
+			ID:        128389,
+			FirstName: "test_user",
+			Username:  "test_username",
+			PhotoURL:  "https://t.me/i/userpic/320/GfOke9XNyVTOgIQ7JMewCAqQ6oqOfLNzDRAWf4DxhyQ.jpg",
+			AuthDate:  1238615,
+			Hash:      "randomhash",
+		}))
 	}
 	// refresh token
 	a.api.GET("/auth/refresh", telegram.RefreshTokenHandler(token, time.Hour*24*7, cookieName, a.domain, false))
@@ -174,7 +180,7 @@ func (a *App) initCoinServiceProvider() error {
 func (a *App) initServer() error {
 	server := &http.Server{
 		Handler:           a.router,
-		Addr:              viper.GetString("server.host") + ":" + viper.GetString("server.port"),
+		Addr:              viper.GetString("domain"),
 		ReadTimeout:       viper.GetDuration("server.readTimeout"),
 		WriteTimeout:      viper.GetDuration("server.writeTimeout"),
 		IdleTimeout:       viper.GetDuration("server.idleTimeout"),
@@ -244,7 +250,7 @@ func (a *App) startServer(listeners ...net.Listener) {
 
 	go func() {
 		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			slog.Error("Starting server with ngrok was failed", sl.Err(err))
+			slog.Error("Starting server local was failed", sl.Err(err))
 			os.Exit(1)
 		}
 	}()

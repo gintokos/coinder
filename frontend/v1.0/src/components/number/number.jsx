@@ -23,7 +23,7 @@ export default function NNumber({count}) {
                 className={styles.number}
                 suffix={<span className={styles.suffix}>{suf}</span>}
                 precision={needsPrecision ? 2 : 0} 
-                valueStyle={{ fontSize: "0.75rem" }}
+                valueStyle={{ fontSize: "1.2rem", fontWeight: "bold", color: "var(--accent-purple)" }}
             />
         </>
     )

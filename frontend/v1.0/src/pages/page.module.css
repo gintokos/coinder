@@ -1,17 +1,21 @@
 .layout {
-  height: 100vh; 
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
+  overflow: hidden;
+  background-color: var(--background-primary);
 }
 
 .content {
   flex: 1;
   overflow-y: auto;
-  background-color: var(--accent-secondary);
+  background-color: var(--background-primary);
+  background-clip: padding-box;
 }
 
-.header, .footer {
+.header,
+.footer {
   background-color: var(--background-secondary);
   color: var(--text-primary);
+  height: 8vh;
 }
