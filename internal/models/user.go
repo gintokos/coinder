@@ -16,6 +16,7 @@ func (User) TableName() string {
 }
 
 type Coinuser struct {
+	ID        uint      `json:"id" gorm:"primaryKey;autoIncrement"`
 	CoinID    int       `json:"coin_id" gorm:"primaryKey;index:idx_coin_user,priority:1"`
 	UserID    int64     `json:"user_id" gorm:"primaryKey;index:idx_coin_user,priority:2"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
@@ -25,6 +26,7 @@ type Coinuser struct {
 }
 
 type Likes struct {
+	ID       uint `json:"id" gorm:"primaryKey;autoIncrement"`
 	Coinuser `gorm:"embedded;embeddedPrefix:like_"`
 }
 

@@ -22,7 +22,7 @@ const (
 type CoinStorage interface {
 	UpdateCoins(coin []models.DBCoin) error
 	DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error)
-	CustomSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error)
+	ChangeLike(isIncrement bool, coinid int, userid int64) error
 }
 
 type CoinService struct {
@@ -96,4 +96,8 @@ func (s *CoinService) Update(dbcoins []models.DBCoin) {
 			}
 		}()
 	}
+}
+
+func (s *CoinService) ChangeLike(isIncrement bool, coinid int, userid int64) error {
+	return s.storage.ChangeLike(isIncrement, coinid, userid)
 }

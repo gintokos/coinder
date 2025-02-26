@@ -1,0 +1,74 @@
+.groupTitle {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.group {
+  margin-bottom: 0.5rem;
+}
+
+.button {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: #1a1b26;
+  border: none;
+  border-radius: 0.5rem;
+  color: #00fa9a;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.button:hover {
+  background: #252837;
+}
+
+.button:after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid #00fa9a;
+  border-bottom: 2px solid #00fa9a;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.activeButton {
+  background: #252837;
+}
+
+.activeButton:after {
+  transform: rotate(-135deg);
+}
+
+.linksWrapper {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #1a1b26;
+  border-radius: 0.5rem;
+}
+
+.link {
+  display: block;
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease;
+}
+
+.link:not(:last-child) {
+  border-bottom: 1px solid #252837;
+}
+
+.link:hover {
+  color: #60a5fa;
+}

@@ -2,6 +2,16 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+@media (max-height: 667px) {
+  html {
+    font-size: 13px;
+  }
 }
 
 
@@ -24,6 +34,7 @@
   --accent-green: #4ab900;     /* Неоновый зелёный для акцентов */
   --accent-blue: #2196F3;      /* Яркий синий для кнопок */
   --accent-purple: #7B61FF;    /* Фиолетовый для выделения */
+  --accent-purple2: #3b374e;    /* Фиолетовый для выделения */
 
   /* Нейтральные цвета */
   --neutral-100: #FFFFFF;      /* Белый */

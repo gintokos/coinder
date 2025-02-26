@@ -35,7 +35,6 @@ const PercentChange = ({value}) => {
 const formatNumber = (num) => {
     const number = Number(num);
     
-    // Для чисел около 1 (от 0.1 до 10)
     if (number >= 0.1 && number <= 10) {
       return number.toLocaleString(undefined, {
         minimumFractionDigits: 2,
@@ -43,21 +42,19 @@ const formatNumber = (num) => {
       });
     }
     
-    // Для очень маленьких чисел
     if (number < 0.1) {
       return number.toExponential(4);
     }
     
-    // Для больших чисел
     return number.toLocaleString(undefined, {
       maximumFractionDigits: 2
     });
-  };
+};
     
 
 export default function Price({ coin }) {
     const [type, setType] = useState('Daily');
-    const [value, setValue] = useState(coin.percent_change_1h);
+    const [value, setValue] = useState(coin.percent_change_24h);
 
     const onChange = useCallback((value) => {
         setType(value)
@@ -72,7 +69,7 @@ export default function Price({ coin }) {
                     return coin.percent_change_7d
             }
         })
-    }, [type]);
+    }, []);
 
 
     return (

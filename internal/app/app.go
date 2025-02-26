@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
@@ -262,9 +263,20 @@ func (a *App) startBot() {
 }
 
 func (a *App) GraceFullShutDown(ctx context.Context) error {
+	var servererr, dberr error
 	if err := a.server.Shutdown(ctx); err != nil {
-		return err
+		servererr = err
 	}
+
+	err := a.database.GraceFullShutDown()
+	if err != nil {
+		dberr = err
+	}
+
+	if servererr != nil || dberr != nil {
+		return fmt.Errorf("error on shutting down server: %v, error on shutting down db: %v", servererr, dberr)
+	}
+
 	a.ctxcancel()
 	return nil
 }

@@ -1,18 +1,18 @@
-import { useState } from 'react'
+import { useRef } from 'react';
 
 const useDoubleTap = (callback, delay = 300) => {
-    const [lastTap, setLastTap] = useState(0);
-  
-    return {
-      onTouchStart: (e) => {
-        const now = new Date().getTime();
-        if (now - lastTap < delay) {
-          callback();
-        }
-        setLastTap(now);
-      },
-      onDoubleClick: callback
-    };
+  const lastTap = useRef(0); 
+
+  return {
+    onTouchStart: (e) => {
+      const now = new Date().getTime();
+      if (now - lastTap.current < delay) {
+        callback();
+      }
+      lastTap.current = now;
+    },
+    onDoubleClick: callback,
+  };
 };
 
-export {useDoubleTap}
+export { useDoubleTap };

@@ -171,14 +171,48 @@ class CoinderApi {
         }
     }
 
-    // to do 
     coins = async (sOptions) => {
+        const defaultOpt = {
+            limit: 100,
+            page: 1,
+            sorted_by: "BY_PRICE",
+            liked_by_user: true,
+            user_id_target: null,
+            liked_today: false
+        }
+
+        sOptions = {...defaultOpt, ...sOptions}
+    
         try {
             return await this.fetch("/coins/default", {
                 method: HTTP_METHODS.POST,
+                body: sOptions
             })
         } catch (error) {
             console.error("error on getting coins", error)
+            throw error
+        }
+    }
+
+    like = async (coinId) => {
+        try {
+            return await this.fetch("/coins/like", {
+                method: HTTP_METHODS.POST,
+                body: { coin_id: coinId }
+            })
+        } catch (error) {
+            console.error("error on liking coin", error)
+        }
+    }
+
+    dislike = async (coinId) => {
+        try {
+            return await this.fetch("/coins/dislike", {
+                method: HTTP_METHODS.POST,
+                body: { coin_id: coinId }
+            })
+        } catch (error) {
+            console.error("error on disliking coin", error)
         }
     }
 }

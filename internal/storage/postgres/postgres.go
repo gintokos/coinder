@@ -110,6 +110,6 @@ func (d *Database) CreateDataBase() error {
 			return fmt.Errorf("error on creating database: %w", err)
 		}
 	}
-	
+
 	return nil
 }

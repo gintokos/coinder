@@ -1,4 +1,3 @@
-import { HeartOutlined, HeartFilled } from '@ant-design/icons'
 import NNumber from '../number/number'
 import { CommentOutlined } from '@ant-design/icons'
 import styles from './commentslogo.module.css'

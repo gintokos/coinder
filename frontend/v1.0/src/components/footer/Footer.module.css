@@ -1,2 +1,27 @@
-.container{
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    height: 100%;
+}
+
+.icon {
+    color: var(--accent-primary);
+}
+
+.icon:hover {
+    transform: scale(1.2);
+}
+
+.profile{
+    width: 1.2rem;
+}
+
+.house{
+    width: 1.8rem;
+}
+
+.tv{
+    width: 2.5rem;
 }

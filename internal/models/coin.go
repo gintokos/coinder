@@ -5,15 +5,17 @@ import (
 )
 
 type SearchCoinOpt struct {
-	QuerySearchCoinOpt
-	UserID int64
+	SearchCoinOptReq
+	UserIDLClient int64
 }
 
-type QuerySearchCoinOpt struct {
-	Page        int
-	Limit       int
-	LikedByUser bool
-	SortedBy    string
+type SearchCoinOptReq struct {
+	UserIDTarget int64  `json:"user_id_target,omitempty" validate:"omitempty,gt=0"`
+	Page         int    `json:"page" validate:"required,min=1,max=1000"`
+	Limit        int    `json:"limit" validate:"required,min=1,max=100"`
+	LikedByUser  bool   `json:"liked_by_user"`
+	SortedBy     string `json:"sorted_by" validate:"required,oneof=BY_PRICE BY_MARKET_CAP BY_POPULARITY"`
+	LikedToday   bool   `json:"liked_today"`
 }
 
 type DBCoin struct {

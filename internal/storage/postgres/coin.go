@@ -46,11 +46,21 @@ func (d *Database) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin
 		query = query.Order("coins.price DESC")
 	case constants.BY_MARKET_CAP:
 		query = query.Order("coins.market_cap DESC")
+	case constants.BY_POPULARITY:
+		query = query.Order("coins.likes_count DESC")
 	}
 
 	if !opt.LikedByUser {
-		query = d.addOnlyUnlikedCoins(query, opt.UserID)
+		query = d.addOnlyUnlikedCoins(query, opt.UserIDLClient)
 	}
+
+	if opt.UserIDTarget != 0 {
+		query.Joins("INNER JOIN likes on coins.id = likes.like_coin_id").Where("likes.like_user_id = ?", opt.UserIDTarget)
+		if opt.LikedToday {
+			query.Where("DATE(likes.created_at) = CURRENT_DATE")
+		}
+	}
+
 
 	var coins []models.DBCoin
 	result := query.Offset((opt.Page - 1) * opt.Limit).Limit(opt.Limit).Find(&coins)
@@ -72,6 +82,17 @@ func (d *Database) addOnlyUnlikedCoins(tx *gorm.DB, userID int64) *gorm.DB {
 			Where("like_user_id = ?", userID))
 }
 
-func (d *Database) CustomSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error) {
-	return nil, nil
+func (d *Database) IncrementLike(coinid int, userid int64) error {
+	err := d.db.Exec(`
+		WITH new_like AS(
+			INSERT INTO likes (like_user_id, like_coin_id)
+			VALUES ($1,$2)
+			RETURNING like_coin_id
+		)
+		UPDATE coins
+		SET likes_count = likes_count + 1
+		WHERE id = $3
+	`, userid, coinid, coinid).Error
+
+	return gerror.New(err, constants.ErrServer, 500)
 }
