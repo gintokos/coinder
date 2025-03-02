@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -142,7 +143,6 @@ func (c *Cache) UpdatingLoop() {
 }
 
 func (c *Cache) GraceFullShutDown() error {
-
 	tempDir := "temp"
 	if _, err := os.Stat(tempDir); os.IsNotExist(err) {
 		err = os.Mkdir(tempDir, 0755)
@@ -164,6 +164,33 @@ func (c *Cache) GraceFullShutDown() error {
 	err = os.WriteFile(filename, data, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write cache to file: %v", err)
+	}
+
+	files, err := os.ReadDir(tempDir)
+	if err != nil {
+		slog.Error("Error reading temp directory", "error", err)
+	} else {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+
+			if !strings.HasPrefix(file.Name(), "cache_") || !strings.HasSuffix(file.Name(), ".json") {
+				continue
+			}
+
+			fileDate := file.Name()[6 : len(file.Name())-5]
+
+			if fileDate != currentDate {
+				filePath := filepath.Join(tempDir, file.Name())
+				err := os.Remove(filePath)
+				if err != nil {
+					slog.Error("Failed to remove old cache file", "file", filePath, "error", err)
+				} else {
+					slog.Info("Removed old cache file", "file", filePath)
+				}
+			}
+		}
 	}
 
 	return nil
