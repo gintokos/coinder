@@ -17,7 +17,7 @@ export default function Main() {
                    </p>
                </div>
                 {
-                    !auth.isAuth ? (
+                    !auth.isAuth && !auth.loading ? (
                         <>
                         <div className={styles.link_container}>
                             <p className={styles.link_text}>

@@ -4,6 +4,7 @@ import { coinderApi } from "../api/api";
 
 export default function useCoins({limit}) {
     let [coins, params] = useLoaderData()
+    if (coins === null) return [undefined, []]
     console.log('coins: ', coins)
     console.log('params: ', params)
 

@@ -13,6 +13,7 @@ export default function Profile() {
         return () => {
             const params = new URLSearchParams()
             params.append('user_id_target', auth.id)
+            params.append('liked_by_user', true)
             if (islikedToday) {
                 params.append('liked_today', true)
             }

@@ -191,7 +191,7 @@
     .sortingSection label,
     .filterSection label {
         padding: 12px;
-        margin-bottom: 12px;
+        margin-bottom: 3px;
     }
     
     .sortingSection span,

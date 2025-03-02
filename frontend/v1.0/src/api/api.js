@@ -215,6 +215,17 @@ class CoinderApi {
             console.error("error on disliking coin", error)
         }
     }
+
+    createInvoice = async(amount) => {
+        try {
+            return await this.fetch("/user/create_invoice?amount=" + amount, {
+                method: HTTP_METHODS.GET,
+            })
+        } catch (error) {
+            console.error("error on creating invoice", error)
+            throw error
+        }
+     }
 }
 
 const BASE_URL = import.meta.env.VITE_DOMAIN

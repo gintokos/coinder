@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 export default function Browsing() {
     console.log("Browsing render");
-    const [sortOption, setSortOption] = useState('price'); 
+    const [sortOption, setSortOption] = useState('marketCap'); 
     const [showLiked, setShowLiked] = useState(false);
     const navigate = useNavigate();
 

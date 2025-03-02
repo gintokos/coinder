@@ -18,7 +18,7 @@ export default function CoinCard({ coin }) {
         CoinMarcetCap: `https://coinmarketcap.com/currencies/${coin.slug}/`
     }
 
-    const [liked, setLiked] = useState(coin.isLiked)
+    const [liked, setLiked] = useState(coin.is_liked)
     const [likeamount, setLikeAmount] = useState(coin.likes_count)
     const heartButtonRef = useRef(null)
 
@@ -83,10 +83,10 @@ export default function CoinCard({ coin }) {
                         <HeartIcon className={`${styles.icon} ${styles.heart}`} filled={liked} />
                         <NNumber count={likeamount} />
                     </button>
-                    <button className={styles.icon_button}>
+                    {/* <button className={styles.icon_button}>
                         <CommentsIcon className={styles.icon} />
                         <NNumber count={coin.comments_count} />
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </Card>

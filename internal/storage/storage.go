@@ -17,7 +17,7 @@ func NewStorage() (*Storage, error) {
 		return nil, err
 	}
 
-	c, err := cache.New(db)
+	c, err := cache.New()
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,33 @@ func (s *Storage) GraceFullShutDown() error {
 	return s.cache.GraceFullShutDown()
 }
 
-func (s *Storage) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error) {
-	if opt.LikedToday {
+func (s *Storage) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.CoinResp, error) {
+	var rcoins []models.CoinResp
+	coins, err := s.Database.DefaultSearchCoins(opt)
+	if err != nil {
+		return nil, err
 	}
 
-	return s.Database.DefaultSearchCoins(opt)
+	if opt.LikedByUser {
+		rcoins = s.cache.LikesInfo(coins, opt.UserIDLClient)
+		return rcoins, nil
+	}
+
+	for _, c := range coins {
+		rcoins = append(rcoins, models.CoinResp{
+			DBCoin:  c,
+			IsLiked: false,
+		})
+	}
+
+	return rcoins, nil
 }
 
 func (s *Storage) ChangeLike(isIncrement bool, coinid int, userid int64) error {
-	s.cache.ChangeLike(isIncrement, coinid, userid)
-	return nil
+	s.cache.StoreLiked(isIncrement, coinid, userid)
+	if isIncrement {
+		return s.IncrementLike(coinid, userid)
+	} else {
+		return s.DecrementLike(coinid, userid)
+	}
 }

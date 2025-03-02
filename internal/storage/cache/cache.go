@@ -6,34 +6,36 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/gintokos/coinder/pkg/gerror"
+	"github.com/gintokos/coinder/internal/models"
 )
 
 type Cache struct {
-	permDB PermanentDB `json:"-"`
+	// permDB PermanentDB `json:"-"`
 
-	mu          sync.RWMutex          `json:"-"`
-	CashedUsers map[string]cashedItem `json:"cashed_items"`
+	mu sync.RWMutex `json:"-"`
+	// CachedItems map[string]cachedItem `json:"cached_items"`
+	CUsers map[int64]CUser `json:"cached_users"`
 }
 
-type cashedItem struct {
-	IsIncrement bool      `json:"key"`
-	ExpiringAt  time.Time `json:"expiring_at"`
-}
+type CUser map[int]bool
 
-type PermanentDB interface {
-	IncrementLike(coinid int, userid int64) error
-}
+// type cachedItem struct {
+// 	IsIncrement bool      `json:"IsIncrement"`
+// 	ExpiringAt  time.Time `json:"expiring_at"`
+// }
 
-func New(permDB PermanentDB) (*Cache, error) {
+// type PermanentDB interface {
+// 	IncrementLike(coinid int, userid int64) error
+// }
+
+func New() (*Cache, error) {
 	cache := &Cache{
-		CashedUsers: make(map[string]cashedItem),
-		permDB:      permDB,
+		// CachedItems: make(map[string]cachedItem),
+		// permDB:      permDB,
+		CUsers: make(map[int64]CUser),
 	}
 
 	err := cache.loadFromTempFile()
@@ -46,53 +48,97 @@ func New(permDB PermanentDB) (*Cache, error) {
 	return cache, nil
 }
 
-func (c *Cache) ChangeLike(isIncrement bool, coinid int, userid int64) {
+func (c *Cache) LikesInfo(coins []models.DBCoin, userid int64) []models.CoinResp {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	var rcoins []models.CoinResp
+	cuser, ok := c.CUsers[userid]
+	if !ok {
+		for _, c := range coins {
+			rcoins = append(rcoins, models.CoinResp{
+				DBCoin:  c,
+				IsLiked: false,
+			})
+		}
+		return rcoins
+	}
+
+	for _, coin := range coins {
+		isIncremented := cuser[coin.ID]
+		rcoins = append(rcoins, models.CoinResp{
+			DBCoin:  coin,
+			IsLiked: isIncremented,
+		})
+	}
+
+	return rcoins
+}
+
+func (c *Cache) StoreLiked(isIncrement bool, coinid int, userid int64) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.CashedUsers[fmt.Sprintf("%d_%d", coinid, userid)] = cashedItem{
-		IsIncrement: isIncrement,
-		ExpiringAt:  time.Now().Add(time.Hour * 10),
+	if _, ok := c.CUsers[userid]; !ok {
+		c.CUsers[userid] = make(CUser)
 	}
+	c.CUsers[userid][coinid] = isIncrement
+
+	// c.CachedItems[fmt.Sprintf("%d_%d", coinid, userid)] = cachedItem{
+	// 	IsIncrement: isIncrement,
+	// 	ExpiringAt:  time.Now().Add(time.Hour * 10),
+	// }
 }
 
 func (c *Cache) UpdatingLoop() {
-	ticker := time.NewTicker(time.Minute)
+	// go func() {
+	ticker := time.NewTicker(time.Hour * 24)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		var expiredKeys []string
-		var expiredItems []cashedItem
-
-		c.mu.RLock()
-		now := time.Now()
-		for key, item := range c.CashedUsers {
-			if item.ExpiringAt.Before(now) {
-				expiredKeys = append(expiredKeys, key)
-				expiredItems = append(expiredItems, item)
-			}
-		}
-		c.mu.RUnlock()
-
-		for i, key := range expiredKeys {
-			item := expiredItems[i]
-
-			c.mu.Lock()
-			delete(c.CashedUsers, key)
-			c.mu.Unlock()
-
-			if item.IsIncrement {
-				ketslice := strings.Split(key, "_")
-				coinID, _ := strconv.Atoi(ketslice[0])
-				userID, _ := strconv.ParseInt(ketslice[1], 10, 64)
-
-				err := c.permDB.IncrementLike(coinID, userID)
-				if err != nil {
-					slog.Error("error on incrementing like", "error", gerror.FullError(err))
-				}
-			}
-		}
+		c.mu.Lock()
+		c.CUsers = make(map[int64]CUser)
+		c.mu.Unlock()
 	}
+
+	// }()
+
+	// ticker := time.NewTicker(time.Minute * 5)
+	// defer ticker.Stop()
+
+	// for range ticker.C {
+	// 	var expiredKeys []string
+	// 	var expiredItems []cachedItem
+
+	// 	c.mu.RLock()
+	// 	now := time.Now()
+	// 	for key, item := range c.CachedItems {
+	// 		if item.ExpiringAt.Before(now) {
+	// 			expiredKeys = append(expiredKeys, key)
+	// 			expiredItems = append(expiredItems, item)
+	// 		}
+	// 	}
+	// 	c.mu.RUnlock()
+
+	// 	for i, key := range expiredKeys {
+	// 		item := expiredItems[i]
+
+	// 		if item.IsIncrement {
+	// 			keyslice := strings.Split(key, "_")
+	// 			coinID, _ := strconv.Atoi(keyslice[0])
+	// 			userID, _ := strconv.ParseInt(keyslice[1], 10, 64)
+
+	// 			err := c.permDB.IncrementLike(coinID, userID)
+	// 			if err != nil {
+	// 				slog.Error("error on incrementing like", "error", gerror.FullError(err))
+	// 			} else {
+	// 				c.mu.Lock()
+	// 				delete(c.CachedItems, key)
+	// 				c.mu.Unlock()
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 func (c *Cache) GraceFullShutDown() error {

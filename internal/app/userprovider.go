@@ -5,6 +5,7 @@ import (
 	"github.com/gintokos/coinder/internal/handlers"
 	"github.com/gintokos/coinder/internal/services"
 	"github.com/gintokos/coinder/internal/storage"
+	"github.com/gintokos/coinder/pkg/telegram"
 )
 
 type userServiceProvider struct {
@@ -13,8 +14,8 @@ type userServiceProvider struct {
 	*storage.Storage
 }
 
-func newUserServiceProvider(router *gin.RouterGroup, st *storage.Storage) *userServiceProvider {
-	service := services.NewUserService(st)
+func newUserServiceProvider(router *gin.RouterGroup, bot *telegram.Bot, st *storage.Storage) *userServiceProvider {
+	service := services.NewUserService(bot, st)
 	handler := handlers.NewUserHandler(router, service)
 	return &userServiceProvider{
 		UserHandler: handler,

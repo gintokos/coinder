@@ -68,3 +68,108 @@
         max-width: 100%;
     }
 }
+
+
+.modal_link{
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: var(--gradient-accent);
+    color: var(--neutral-100);
+    border: none;
+    border-radius: var(--radius-full);
+}
+
+.modal_link:hover{
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.modal_container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal_container {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .modal_title {
+    text-align: center;
+    color: var(--accent-blue);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .input_container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  
+  
+  .stars_input {
+    width: 100%;
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent-purple2);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    text-align: center;
+  }
+  
+  .stars_input:focus {
+    border-color: var(--accent-blue);
+  }
+  
+  .donate_button {
+    width: 100%;
+    background-color: var(--accent-blue);
+    color: var(--neutral-100);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    margin-top: 1rem;
+  }
+  
+  .donate_button:hover:not(:disabled) {
+    background-color: var(--accent-purple);
+  }
+  
+  .donate_button_disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .donate_text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  
+  .star_icon {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700"><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: middle;
+  }

@@ -18,6 +18,11 @@ type SearchCoinOptReq struct {
 	LikedToday   bool   `json:"liked_today"`
 }
 
+type CoinResp struct {
+	DBCoin
+	IsLiked bool `json:"is_liked"`
+}
+
 type DBCoin struct {
 	ID     int    `gorm:"primaryKey;type:integer" json:"id"`
 	Name   string `gorm:"type:varchar(100);not null" json:"name"`

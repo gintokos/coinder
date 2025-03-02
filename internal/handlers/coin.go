@@ -15,7 +15,7 @@ type likeReq struct {
 }
 
 type CoinService interface {
-	DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error)
+	DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.CoinResp, error)
 	ChangeLike(isIncrement bool, coinid int, userid int64) error
 }
 
@@ -57,6 +57,10 @@ func (h *CoinHandler) changeLike(isIncrement bool) gin.HandlerFunc {
 			ErrorResponse(c, err)
 			return
 		}
+
+		c.JSON(http.StatusAccepted, gin.H{
+			"status": "ok",
+		})
 	}
 }
 

@@ -23,8 +23,12 @@ import (
 	"golang.ngrok.com/ngrok/config"
 )
 
+const (
+	API_ROUTE = "/api/v1"
+)
+
 type App struct {
-	bot telegram.Bot
+	bot *telegram.Bot
 
 	context   context.Context
 	ctxcancel context.CancelFunc
@@ -32,6 +36,7 @@ type App struct {
 
 	*userServiceProvider
 	*coinServiceProvider
+	*telegraWebhookServiceProvider
 
 	server   *http.Server
 	api      *gin.RouterGroup
@@ -61,6 +66,8 @@ func (a *App) initDeps() error {
 		a.initUserServiceProvider,
 
 		a.initCoinServiceProvider,
+
+		a.initTelegramWebhookServiceProvider,
 	}
 
 	for _, f := range inits {
@@ -89,6 +96,7 @@ func (a *App) initBot() error {
 		viper.GetString("botToken"),
 		a.domain,
 		"coinder",
+		API_ROUTE+"/telegramwebhook",
 	)
 	a.bot = bot
 	if err != nil {
@@ -126,7 +134,7 @@ func (a *App) initRouter() error {
 		})
 	}
 
-	a.api = r.Group("/api/v1")
+	a.api = r.Group(API_ROUTE)
 	a.api.Use(func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Next()
@@ -167,7 +175,7 @@ func (a *App) initRouter() error {
 }
 
 func (a *App) initUserServiceProvider() error {
-	a.userServiceProvider = newUserServiceProvider(a.api, a.database)
+	a.userServiceProvider = newUserServiceProvider(a.api,a.bot, a.database)
 	slog.Info("UserServiceProvider was created")
 	return nil
 }
@@ -175,6 +183,12 @@ func (a *App) initUserServiceProvider() error {
 func (a *App) initCoinServiceProvider() error {
 	a.coinServiceProvider = newCoinServiceProvider(a.api, a.database)
 	slog.Info("CoinServiceProvider was created")
+	return nil
+}
+
+func (a *App) initTelegramWebhookServiceProvider() error {
+	a.telegraWebhookServiceProvider = newTelegramWebhookServiceProvider(a.router, a.bot, a.database)
+	slog.Info("TelegramWebhookServiceProvider was created")
 	return nil
 }
 

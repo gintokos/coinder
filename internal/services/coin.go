@@ -21,7 +21,7 @@ const (
 
 type CoinStorage interface {
 	UpdateCoins(coin []models.DBCoin) error
-	DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error)
+	DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.CoinResp, error)
 	ChangeLike(isIncrement bool, coinid int, userid int64) error
 }
 
@@ -39,7 +39,7 @@ func NewCoinService(storage CoinStorage) *CoinService {
 	}
 }
 
-func (s *CoinService) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin, error) {
+func (s *CoinService) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.CoinResp, error) {
 	dbcoins, err := s.storage.DefaultSearchCoins(opt)
 	if err != nil {
 		slog.Error("error in getting coins from database: ", sl.Err(err))
