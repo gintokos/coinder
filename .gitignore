@@ -30,3 +30,6 @@ go.work.sum
 
 # temp directory for cache
 temp/
+
+# build files
+build/
