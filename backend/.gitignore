@@ -32,4 +32,6 @@ go.work.sum
 temp/
 
 # build files
-build/
+build/frontend/assets
+build/frontend/*.svg
+build/frontend/*.html
