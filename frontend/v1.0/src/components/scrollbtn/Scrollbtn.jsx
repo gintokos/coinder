@@ -1,4 +1,4 @@
-import styles from './ScrollBtn.module.css';
+import styles from './scrollbtn.module.css';
 
 export default function ScrollBtn({ onClick, className }) {
     return (

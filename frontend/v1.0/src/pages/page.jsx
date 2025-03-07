@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router';
-import Footer from '../components/footer/footer';
-import classes from './Page.module.css';
+import Footer from '../components/footer/Footer';  
+import classes from './page.module.css';
 import useTelegramBackButton from '../hooks/back';
 import Card from '../components/card/card';
 

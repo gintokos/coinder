@@ -1,0 +1,63 @@
+version: '3.8'
+services:
+  frontend:
+    image: myapp-frontend:1.0
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    image: myapp-backend:1.0
+    networks:
+      - app-network
+    depends_on:
+      - database
+    restart: unless-stopped
+
+  database:
+    image: postgres:14-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=GK986vBBdOOkjh08Bvzzz
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: myapp-nginx:1.0
+    network_mode: host
+    environment:
+      - NGINX_HOST=127.0.0.1
+      - CERTBOT_EMAIL=admin@example.com
+      - CERTBOT_STAGING=0
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    extra_hosts:
+      - "frontend:172.17.0.1"
+      - "backend:172.17.0.1"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  certbot-conf:
+    driver: local
+  certbot-www:
+    driver: local

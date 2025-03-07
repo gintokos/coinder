@@ -6,7 +6,7 @@ import { Navigation, Mousewheel, Keyboard, Manipulation } from 'swiper/modules';
 import { useLocation } from 'react-router';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import ScrollBtn from '../../components/scrollbtn/scrollbtn';
+import ScrollBtn from '../../components/scrollbtn/Scrollbtn.jsx';
 import ReactDOM from 'react-dom/client';
 import { coinderApi } from '../../api/api';
 import useCoins from '../../hooks/coins';

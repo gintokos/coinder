@@ -1,5 +1,5 @@
 import Card from "../../components/card/card"
-import styles from "./coinCard.module.css"
+import styles from "./coincard.module.css"
 import { useState, useRef } from 'react'
 import Price from "../price/Price"
 import NNumber from "../number/number"

@@ -1,4 +1,4 @@
-import styles from './footer.module.css'
+import styles from './Footer.module.css'
 import { HouseIcon, TVIcon, ProfileIcon } from '../icons/icons'
 import { Link } from 'react-router'
 import { useSelector } from 'react-redux'

@@ -1,0 +1,8 @@
+# build files
+*.gz
+
+# Docker images
+docker-images.tar
+
+# Deployment package
+deploy.tar.gz
