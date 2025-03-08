@@ -3,7 +3,8 @@ services:
   frontend:
     image: myapp-frontend:1.0
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.2
     depends_on:
       - backend
     restart: unless-stopped
@@ -11,7 +12,8 @@ services:
   backend:
     image: myapp-backend:1.0
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.3
     depends_on:
       - database
     restart: unless-stopped
@@ -24,7 +26,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=GK986vBBdOOkjh08Bvzzz
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.4
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -36,9 +39,9 @@ services:
     image: myapp-nginx:1.0
     network_mode: host
     environment:
-      - NGINX_HOST=127.0.0.1
-      - CERTBOT_EMAIL=admin@example.com
-      - CERTBOT_STAGING=0
+      - NGINX_HOST=coinder.website
+      - DOMAINS=coinder.website
+      - EMAIL=rakowqlo91fjis@gmail.com
     volumes:
       - certbot-conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot
@@ -47,12 +50,16 @@ services:
       - backend
     restart: unless-stopped
     extra_hosts:
-      - "frontend:172.17.0.1"
-      - "backend:172.17.0.1"
+      - "frontend:172.20.0.2"
+      - "backend:172.20.0.3"
 
 networks:
   app-network:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
   postgres-data:

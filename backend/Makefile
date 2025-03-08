@@ -25,16 +25,16 @@ endif
 all: clean build
 
 clean:
-	@echo "Очистка..."
+	@echo "Cleaning..."
 	@rm -rf $(BUILD_DIR)
 	@mkdir -p $(BUILD_DIR)
 
 build:
-	@echo "Сборка для $(GOOS)/$(GOARCH)..."
+	@echo "Building app for $(GOOS)/$(GOARCH)..."
 	@mkdir -p $(BUILD_DIR)
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
-	@echo "Готово! Бинарный файл: $(BUILD_DIR)/$(BINARY_NAME)"
+	@echo "Done! Binary file: $(BUILD_DIR)/$(BINARY_NAME)"
 
 test:
-	@echo "Запуск тестов..."
+	@echo "Starting tests..."
 	@go test -v ./...

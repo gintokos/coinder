@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	appcfg "github.com/gintokos/coinder/internal/config"
 	"github.com/gintokos/coinder/internal/middleware"
@@ -109,6 +110,14 @@ func (a *App) initBot() error {
 
 func (a *App) initRouter() error {
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// in local with ngrok redirect all requests to http://localhost:5173 where should be running vite dev server
 	env := viper.GetString("env")
@@ -175,7 +184,7 @@ func (a *App) initRouter() error {
 }
 
 func (a *App) initUserServiceProvider() error {
-	a.userServiceProvider = newUserServiceProvider(a.api,a.bot, a.database)
+	a.userServiceProvider = newUserServiceProvider(a.api, a.bot, a.database)
 	slog.Info("UserServiceProvider was created")
 	return nil
 }
@@ -195,7 +204,7 @@ func (a *App) initTelegramWebhookServiceProvider() error {
 func (a *App) initServer() error {
 	server := &http.Server{
 		Handler:           a.router,
-		Addr:              viper.GetString("domain"),
+		Addr:              "0.0.0.0:8080",
 		ReadTimeout:       viper.GetDuration("server.readTimeout"),
 		WriteTimeout:      viper.GetDuration("server.writeTimeout"),
 		IdleTimeout:       viper.GetDuration("server.idleTimeout"),

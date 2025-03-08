@@ -7,7 +7,7 @@ RUN apk add --no-cache certbot certbot-nginx openssl bash curl
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy our configuration
-COPY default.conf /etc/nginx/conf.d/
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Create directories for certbot
 RUN mkdir -p /var/www/certbot
@@ -17,7 +17,5 @@ RUN mkdir -p /etc/letsencrypt
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
-
-# Run entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+# Use CMD instead of ENTRYPOINT
+CMD ["/entrypoint.sh"]
