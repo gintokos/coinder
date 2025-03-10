@@ -52,7 +52,7 @@ export const checkAuth = createAsyncThunk(
             const ok = await coinderApi.ping()
             if (ok) {
                 const user = {
-                    id: localStorage.getItem('userId'),
+                    id: localStorage.getItem('id'),
                     username: localStorage.getItem('username'),
                     firstName: localStorage.getItem('firstName'),
                     photoUrl: localStorage.getItem('photoUrl'),

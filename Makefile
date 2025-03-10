@@ -56,6 +56,7 @@ package:
 	cp docker-compose.yml ./tmp_deploy/
 	cp setup.sh ./tmp_deploy/
 	cp cleanup.sh ./tmp_deploy/
+	cp .env ./tmp_deploy/
 	chmod +x ./tmp_deploy/setup.sh
 	chmod +x ./tmp_deploy/cleanup.sh
 	# Create the deployment archive

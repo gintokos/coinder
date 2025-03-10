@@ -18,12 +18,25 @@ RUN make build OS=LINUX
 # Final stage
 FROM alpine
 
-# Copy the build directory and config file
-COPY --from=builder /usr/src/app/build ./build
+# Create necessary directories
+RUN mkdir -p ./build/app ./build/parser
+
+# Copy the binaries and config files
+COPY --from=builder /usr/src/app/build/app/app ./build/app/
+COPY --from=builder /usr/src/app/build/parser/parser ./build/parser/
 COPY appconfig.json ./
+COPY parserconfig.json ./
+COPY photo ./photo
 
-# Make the binary executable
-RUN chmod +x ./build/app/app
+# Make the binaries executable
+RUN chmod +x ./build/app/app ./build/parser/parser
 
-# Run the application with config
-ENTRYPOINT ["./build/app/app", "--config", "./appconfig.json"]
+# Create script to run both applications
+RUN echo '#!/bin/sh' > ./run.sh && \
+    echo './build/app/app --config ./appconfig.json &' >> ./run.sh && \
+    echo './build/parser/parser --config ./parserconfig.json &' >> ./run.sh && \
+    echo 'wait' >> ./run.sh && \
+    chmod +x ./run.sh
+
+# Run the applications with config
+ENTRYPOINT ["./run.sh"]

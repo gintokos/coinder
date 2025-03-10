@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/gintokos/coinder/internal/config"
 	"github.com/gintokos/coinder/internal/parser"
@@ -17,6 +18,9 @@ import (
 
 func main() {
 	config.MustInitForParser()
+
+	// wait for 10 seconds to allow the database to start from backend
+	time.Sleep(10 * time.Second)
 
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,

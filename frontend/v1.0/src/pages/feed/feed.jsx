@@ -23,8 +23,6 @@ export default function Feed() {
     const sortedBy = queryParams.get('sorted_by') || 'BY_PRICE';
     const likedByUser = queryParams.get('liked_by_user') === 'true';
     
-    console.log("Feed params:", { sortedBy, likedByUser });
-    
     const [nextCoins, firstCoins] = useCoins({
         limit: LIMIT
     });

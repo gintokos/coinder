@@ -6,3 +6,6 @@ docker-images.tar
 
 # Deployment package
 deploy.tar.gz
+
+# Environment variables
+.env

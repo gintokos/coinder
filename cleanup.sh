@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Cleanup script for Docker application
-# This script will stop all containers and clean up resources
+# This script will stop all containers and clean up resources but preserve volumes
 
 # Exit on any error
 set -e
@@ -24,9 +24,9 @@ fi
 
 # Check if docker-compose.yml exists
 if [ -f "docker-compose.yml" ]; then
-    echo "Stopping containers..."
-    $COMPOSE_CMD down -v
-    echo "Containers stopped and removed successfully."
+    echo "Stopping containers (preserving volumes)..."
+    $COMPOSE_CMD down  # Removed -v flag to preserve volumes
+    echo "Containers stopped and removed successfully. Volumes preserved."
 else
     echo "WARNING: docker-compose.yml not found! Will try to find and remove containers manually."
     
@@ -62,11 +62,11 @@ docker rmi postgres:14-alpine 2>/dev/null || true
 echo "Removing dangling images..."
 docker images -f "dangling=true" -q | xargs -r docker rmi -f 2>/dev/null || true
 
-# Prune system to remove all unused objects
-echo "Pruning unused Docker resources..."
-docker system prune -f
+# Prune system but exclude volumes
+echo "Pruning unused Docker resources (excluding volumes)..."
+docker system prune -f --volumes=false  # Added --volumes=false to preserve volumes
 
-echo "Docker cleanup completed."
+echo "Docker cleanup completed. Volumes have been preserved."
 
 # Remove archives and files
 echo "Removing deployment files..."

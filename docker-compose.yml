@@ -15,8 +15,19 @@ services:
       app-network:
         ipv4_address: 172.20.0.3
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     restart: unless-stopped
+    command: sh -c "
+      echo 'Waiting for database to be ready...' &&
+      while ! nc -z database 5432; do
+        sleep 1
+      done &&
+      echo 'Database is ready!' &&
+      ./build/app/app --config ./appconfig.json &
+      ./build/parser/parser --config ./configparser.json &
+      wait
+      "
 
   database:
     image: postgres:14-alpine
@@ -24,24 +35,25 @@ services:
       - postgres-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=GK986vBBdOOkjh08Bvzzz
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     networks:
       app-network:
-        ipv4_address: 172.20.0.4
+        ipv4_address: 172.20.0.5
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   nginx:
     image: myapp-nginx:1.0
     network_mode: host
     environment:
-      - NGINX_HOST=coinder.website
-      - DOMAINS=coinder.website
-      - EMAIL=rakowqlo91fjis@gmail.com
+      - NGINX_HOST=coinder.space
+      - DOMAINS=coinder.space
+      - EMAIL=asfdu8aiuafsd@gmail.com
     volumes:
       - certbot-conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot

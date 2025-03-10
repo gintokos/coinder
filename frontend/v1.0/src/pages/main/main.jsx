@@ -12,8 +12,7 @@ export default function Main() {
                <h1 className={styles.title}>Welcome to Coinder</h1>
                <div className={styles.description}>
                    <p className={styles.text}>
-                       Coinder is a platform that helps you manage and track your cryptocurrency portfolio efficiently. 
-                       Monitor your investments, analyze market trends, and make informed decisions all in one place.
+                        Coinder– Your elegant gateway to the world of cryptocurrencies. Discover trending coins with a simple scroll, mark your favorites with a tap, and build your personalized collection of digital assets. Clean, intuitive, and engaging – explore the crypto universe at your fingertips.
                    </p>
                </div>
                 {

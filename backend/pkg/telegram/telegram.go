@@ -1,9 +1,12 @@
 package telegram
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
+	"os"
 	"strings"
 
 	"github.com/gintokos/coinder/pkg/sl"
@@ -16,6 +19,31 @@ type Bot struct {
 	domain  string
 	name    string
 	b       *bot.Bot
+}
+
+var avatarData []byte
+
+// reads file avatar.jpg in photo directory
+func init() {
+	file, err := os.Open("photo/avatar.jpg")
+	if err != nil {
+		slog.Error("failed to open avatar", sl.Err(err))
+		return
+	}
+	defer file.Close()
+
+	avatarData, err = io.ReadAll(file)
+	if err != nil {
+		slog.Error("failed to read avatar", sl.Err(err))
+		return
+	}
+}
+
+func avatar() *models.InputFileUpload {
+    return &models.InputFileUpload{
+        Filename: "avatar.jpg",
+        Data:     bytes.NewReader(avatarData),
+    }
 }
 
 // defines also webhook on route https://domain + webhookpath
@@ -39,7 +67,7 @@ func NewBot(ctx context.Context, token, domain, name, webhookpath string) (*Bot,
 	// })
 
 	commands := []models.BotCommand{
-		{Command: "app", Description: "get web app"},
+		{Command: "start", Description: "get web app"},
 	}
 
 	ok, err := b.SetMyCommands(ctx, &bot.SetMyCommandsParams{Commands: commands})
@@ -116,29 +144,47 @@ func (mbot *Bot) handleCommand(update *models.Update) bool {
 	command := strings.TrimPrefix(msg, "/")
 
 	var params *bot.SendMessageParams
+	var photoParams *bot.SendPhotoParams
 
 	switch command {
-	case "app":
-		params = &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Press btn to open app",
-			ReplyMarkup: &models.InlineKeyboardMarkup{
-				InlineKeyboard: [][]models.InlineKeyboardButton{
+	case "start":
+		rmkp := &models.InlineKeyboardMarkup{
+			InlineKeyboard: [][]models.InlineKeyboardButton{
+				{
 					{
-						{
-							Text: mbot.name,
-							WebApp: &models.WebAppInfo{
-								URL: "https://" + mbot.domain,
-							},
+						Text: mbot.name,
+						WebApp: &models.WebAppInfo{
+							URL: "https://" + mbot.domain,
 						},
 					},
 				},
 			},
 		}
+		if avatarData != nil {
+			photoParams = &bot.SendPhotoParams{
+				ChatID:  update.Message.Chat.ID,
+				Photo:   avatar(),
+				Caption: "Press button to open app",
+				ReplyMarkup: rmkp,
+			}
+		} else {
+			params = &bot.SendMessageParams{
+				ChatID:  update.Message.Chat.ID,
+				Text:    "Press button to open app",
+				ReplyMarkup: rmkp,
+			}
+		}
+
 	}
 
 	if params != nil {
 		if _, err := mbot.b.SendMessage(mbot.context, params); err != nil {
+			slog.Error("failed to send msg in telegram", sl.Err(err))
+		}
+	}
+
+	if photoParams != nil {
+		if _, err := mbot.b.SendPhoto(mbot.context, photoParams); err != nil {
 			slog.Error("failed to send msg in telegram", sl.Err(err))
 		}
 	}

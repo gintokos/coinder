@@ -10,7 +10,7 @@ Example of config for parser
         "name": "coinder",
         "user":"postgres",
         "password": "password",
-        "host": "127.0.0.1",
+        "host": "database",
         "port":"5432"
       }
   }
@@ -30,12 +30,12 @@ PROD             = "prod"
       "database": {
         "name": "coinder",
         "user":"postgres",
-        "password": "GK986vBBdOOkjh08Bvzzz",
-        "host": "127.0.0.1",
+        "password": "password",
+        "host": "database",
         "port":"5432"
       },
       "parser": {
-          "cmc_apikey":"adb5310b-ece6-40c1-9904-caa8f3cc704e",
+          "cmc_apikey":"apikey",
           "timestamp": "24h",
           "timeout_for_req": "10s"
       }

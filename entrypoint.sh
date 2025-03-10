@@ -1,11 +1,13 @@
 #!/bin/bash
-# Не завершать скрипт при ошибках
 set +e
 
 # Environment variables
 # Set these when running the container
 # DOMAINS="example.com,www.example.com"
 # EMAIL="admin@example.com"
+
+# Флаг для пропуска обновления сертификата (установите 1, чтобы пропустить)
+SKIP_CERT_RENEWAL=0
 
 # Check for required environment variables
 if [ -z "$DOMAINS" ]; then
@@ -22,7 +24,7 @@ fi
 
 # Function to update certificates
 update_certs() {
-  # Split domains by comma
+  # Split domains by comma  
   IFS=',' read -ra DOMAIN_LIST <<< "$DOMAINS"
   DOMAIN_ARGS=""
   
@@ -31,64 +33,51 @@ update_certs() {
     DOMAIN_ARGS="$DOMAIN_ARGS -d $domain"
   done
   
-  # Start nginx to handle acme-challenge requests
-  echo "Starting Nginx for ACME challenge handling..."
-  nginx
-  
-  # First check if the webroot path is accessible
-  echo "Testing ACME challenge path..."
-  mkdir -p /var/www/certbot/.well-known/acme-challenge/
-  echo "test" > /var/www/certbot/.well-known/acme-challenge/test
-  curl -s http://localhost/.well-known/acme-challenge/test
-  
-  # Check if certificate already exists for the first domain
+  # First domain is the primary one
   FIRST_DOMAIN=${DOMAIN_LIST[0]}
   
-  # Пропустим стадию тестового сертификата и сразу получим боевой
-  echo "Getting production certificate for $DOMAINS"
+  # Create required directories
+  mkdir -p /var/www/certbot/.well-known/acme-challenge/
   
-  # Удалим существующие сертификаты, если они есть
-  if [ -d "/etc/letsencrypt/live/$FIRST_DOMAIN" ]; then
-    echo "Removing existing certificates for clean installation"
-    rm -rf /etc/letsencrypt/live/$FIRST_DOMAIN
-    rm -rf /etc/letsencrypt/archive/$FIRST_DOMAIN
-    rm -f /etc/letsencrypt/renewal/$FIRST_DOMAIN.conf
-  fi
-  
-  # Получаем сразу боевой сертификат
-  certbot --nginx \
-    $DOMAIN_ARGS \
-    --email $EMAIL \
-    --agree-tos \
-    --no-eff-email \
-    --non-interactive
-  
-  # Если не удалось получить боевой сертификат, генерируем самоподписанный как резервный вариант
-  if [ $? -ne 0 ]; then
-    echo "Production certificate failed, generating self-signed certificate as fallback"
-    mkdir -p /etc/letsencrypt/live/$FIRST_DOMAIN
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-      -keyout /etc/letsencrypt/live/$FIRST_DOMAIN/privkey.pem \
-      -out /etc/letsencrypt/live/$FIRST_DOMAIN/fullchain.pem \
-      -subj "/CN=$FIRST_DOMAIN"
-    # Create empty chain.pem
-    touch /etc/letsencrypt/live/$FIRST_DOMAIN/chain.pem
+  # Проверяем, не запущен ли уже Nginx
+  if ! pgrep -x "nginx" > /dev/null; then
+    echo "Starting Nginx temporarily for ACME challenge..."
+    nginx
     
-    # Manually configure nginx for SSL with self-signed certificate
-    if ! grep -q "ssl_certificate" /etc/nginx/nginx.conf; then
-      # If nginx.conf doesn't exist, try site-specific configs
-      if [ -f "/etc/nginx/conf.d/default.conf" ]; then
-        # Try to modify site config if it exists
-        sed -i "/listen 80;/a \    listen 443 ssl;\n    ssl_certificate /etc/letsencrypt/live/$FIRST_DOMAIN/fullchain.pem;\n    ssl_certificate_key /etc/letsencrypt/live/$FIRST_DOMAIN/privkey.pem;\n    ssl_trusted_certificate /etc/letsencrypt/live/$FIRST_DOMAIN/chain.pem;\n    include /etc/letsencrypt/options-ssl-nginx.conf;\n    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;" /etc/nginx/conf.d/default.conf
-      else
-        # Try to modify main config
-        sed -i "/server {/a \    listen 443 ssl;\n    ssl_certificate /etc/letsencrypt/live/$FIRST_DOMAIN/fullchain.pem;\n    ssl_certificate_key /etc/letsencrypt/live/$FIRST_DOMAIN/privkey.pem;\n    ssl_trusted_certificate /etc/letsencrypt/live/$FIRST_DOMAIN/chain.pem;\n    include /etc/letsencrypt/options-ssl-nginx.conf;\n    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;" /etc/nginx/nginx.conf
-      fi
-    fi
+    # Даем Nginx время на запуск
+    sleep 2
+  else
+    echo "Nginx already running, using it for ACME challenge..."
   fi
   
-  # Restart Nginx with the new configuration
-  nginx -s stop
+  # Запускаем certbot только если не указано пропустить обновление
+  if [ $SKIP_CERT_RENEWAL -ne 1 ]; then
+    echo "Requesting/renewing certificate for $FIRST_DOMAIN (if needed)"
+    
+    # certbot сам решит, нужно ли обновлять сертификат
+    certbot --nginx \
+      $DOMAIN_ARGS \
+      --email $EMAIL \
+      --agree-tos \
+      --no-eff-email \
+      --non-interactive \
+      --keep-until-expiring \
+      --expand
+    
+    CERTBOT_EXIT_CODE=$?
+    if [ $CERTBOT_EXIT_CODE -ne 0 ]; then
+      echo "Error requesting certificate (exit code: $CERTBOT_EXIT_CODE)"
+      echo "Continuing with existing configuration if available"
+    else
+      echo "Certificate successfully obtained/renewed and Nginx configured"
+    fi
+  else
+    echo "Certificate renewal skipped by user configuration"
+  fi
+  
+  # Перезагружаем конфигурацию Nginx
+  echo "Reloading Nginx configuration..."
+  nginx -s reload
 }
 
 # Set up automatic certificate renewal
@@ -100,19 +89,42 @@ setup_cron() {
 
 # Main process
 main() {
+  # Create required directories
+  mkdir -p /etc/letsencrypt/live
+  mkdir -p /var/www/certbot
+  
+  # Проверяем, нет ли уже запущенных экземпляров Nginx
+  if pgrep -x "nginx" > /dev/null; then
+    echo "Found running Nginx instances. Stopping them before starting..."
+    nginx -s stop
+    sleep 3  # Даем Nginx время на полную остановку
+    
+    # Дополнительная проверка, если nginx все еще запущен
+    if pgrep -x "nginx" > /dev/null; then
+      echo "Warning: Nginx is still running. Trying to kill processes..."
+      killall -9 nginx
+      sleep 1
+    fi
+  fi
+  
+  # Запускаем Nginx в фоне
+  echo "Starting Nginx..."
+  nginx
+  
   # Update certificates
   update_certs
   
   # Set up automatic renewal
   setup_cron
   
-  # Check Nginx configuration
-  echo "Checking Nginx configuration..."
-  nginx -t
+  # Останавливаем текущий Nginx и запускаем в основном режиме
+  echo "Restarting Nginx in foreground mode..."
+  nginx -s stop
+  sleep 2
   
-  echo "Starting Nginx..."
   # Run Nginx in foreground
-  nginx -g "daemon off;"
+  echo "Starting Nginx in foreground mode..."
+  exec nginx -g "daemon off;"
 }
 
 # Run main process

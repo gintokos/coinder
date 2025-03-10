@@ -71,9 +71,7 @@ func (p *Parser) Run(ctx context.Context, wg *sync.WaitGroup) error {
 	slog.Debug("First parse was started")
 
 	p.parseallCoins()
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 
 		for {
 			slog.Debug("Cycle work")

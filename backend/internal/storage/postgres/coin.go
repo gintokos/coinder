@@ -27,7 +27,14 @@ func (d *Database) UpdateCoins(coins []models.DBCoin) error {
 			AllowGlobalUpdate: true,
 		}).Clauses(
 			clause.OnConflict{
-				UpdateAll: true,
+				Columns: []clause.Column{{Name: "id"}},
+				DoUpdates: clause.AssignmentColumns([]string{
+					"name", "symbol", "slug", "last_updated", "date_added", "date_launched",
+					"price", "volume_24h", "volume_change_24h", "percent_change_1h",
+					"percent_change_24h", "percent_change_7d", "market_cap",
+					"market_cap_dominance", "fully_diluted_market_cap",
+					"logo", "description",
+				}),
 			},
 		).CreateInBatches(coins, constants.BATCH_SIZE).Error
 	})
@@ -55,7 +62,10 @@ func (d *Database) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin
 	}
 
 	if opt.UserIDTarget != 0 {
+		query = query.Distinct("coins.*")
+		
 		query = query.Joins("INNER JOIN likes on coins.id = likes.like_coin_id").Where("likes.like_user_id = ?", opt.UserIDTarget)
+		
 		if opt.LikedToday {
 			query = query.Where("DATE(likes.like_created_at) = CURRENT_DATE")
 		}
