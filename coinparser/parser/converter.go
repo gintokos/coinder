@@ -1,13 +1,15 @@
-package models
+package parser
 
 import (
 	"strings"
 	"time"
 
 	"github.com/shopspring/decimal"
+	"github.com/gintokos/coinder/backend/internal/models"
+	psModels "github.com/gintokos/coinder/coinparser/models"
 )
 
-func ToDBcoin(pc *ParserCoin) DBCoin {
+func ToDBcoin(pc *psModels.ParserCoin) models.DBCoin {
 	parseTime := func(timeStr string) *string {
 		if timeStr == "" {
 			return nil
@@ -23,7 +25,7 @@ func ToDBcoin(pc *ParserCoin) DBCoin {
 		return strings.Join(urls, ",")
 	}
 
-	return DBCoin{
+	return models.DBCoin{
 		ID:               pc.ID,
 		Name:             pc.Name,
 		Symbol:           pc.Symbol,
@@ -40,7 +42,7 @@ func ToDBcoin(pc *ParserCoin) DBCoin {
 		MarketCap:        decimal.NewFromFloat(pc.Quote.USD.MarketCap),
 		MarketCapDom:     decimal.NewFromFloat(pc.Quote.USD.MarketCapDom),
 		FullyDilutedMC:   decimal.NewFromFloat(pc.Quote.USD.FullyDilutedMC),
-		DBurls: DBurls{
+		DBurls: models.DBurls{
 			Website:      joinURLs(pc.Urls.Website),
 			TechnicalDoc: joinURLs(pc.Urls.TechnicalDoc),
 			Twitter:      joinURLs(pc.Urls.Twitter),

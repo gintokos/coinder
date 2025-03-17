@@ -3,8 +3,8 @@ package postgres
 import (
 	"errors"
 
-	"github.com/gintokos/coinder/backend/internal/constants"
-	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/constants"
+	"github.com/gintokos/coinder/backend/models"
 	"github.com/gintokos/coinder/backend/pkg/gerror"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

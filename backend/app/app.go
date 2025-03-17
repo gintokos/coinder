@@ -14,9 +14,9 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	appcfg "github.com/gintokos/coinder/backend/internal/config"
-	"github.com/gintokos/coinder/backend/internal/middleware"
-	"github.com/gintokos/coinder/backend/internal/storage"
+	appcfg "github.com/gintokos/coinder/backend/config"
+	"github.com/gintokos/coinder/backend/middleware"
+	"github.com/gintokos/coinder/backend/storage"
 	"github.com/gintokos/coinder/backend/pkg/sl"
 	"github.com/gintokos/coinder/backend/pkg/telegram"
 	"github.com/spf13/viper"

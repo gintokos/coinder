@@ -2,9 +2,9 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gintokos/coinder/backend/internal/handlers"
-	"github.com/gintokos/coinder/backend/internal/services"
-	"github.com/gintokos/coinder/backend/internal/storage"
+	"github.com/gintokos/coinder/backend/handlers"
+	"github.com/gintokos/coinder/backend/services"
+	"github.com/gintokos/coinder/backend/storage"
 )
 
 type coinServiceProvider struct {

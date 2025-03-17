@@ -14,12 +14,14 @@ import (
 	"time"
 
 	"github.com/gintokos/coinder/backend/pkg/sl"
+	psModels "github.com/gintokos/coinder/coinparser/models"
+	"github.com/gintokos/coinder/backend/models"
 )
 
 const (
 	minRequestInterval    = time.Second * 2
 	maxtries              = 3
-	expectedAmountOfcoins = 11000
+	expectedAmountOfcoins = 12000
 	batchSize             = 500
 	maxCoinPerReq         = 5000
 	baseURL               = "https://pro-api.coinmarketcap.com"
@@ -91,7 +93,7 @@ func (p *Parser) Run(ctx context.Context, wg *sync.WaitGroup) error {
 }
 
 func (p *Parser) parseallCoins() {
-	coins := make([]models.ParserCoin, 0, expectedAmountOfcoins)
+	coins := make([]psModels.ParserCoin, 0, expectedAmountOfcoins)
 	page, limit := 0, maxCoinPerReq
 
 	var flag = true
@@ -147,7 +149,7 @@ func (p *Parser) parseallCoins() {
 }
 
 // ids may be nil
-func (p *Parser) fetchWitoutMeta(limit, start int, ids ...string) ([]models.ParserCoin, error) {
+func (p *Parser) fetchWitoutMeta(limit, start int, ids ...string) ([]psModels.ParserCoin, error) {
 	var url string
 	if len(ids) > 0 {
 		idString := strings.Join(ids, ",")
@@ -188,7 +190,7 @@ func (p *Parser) fetchWitoutMeta(limit, start int, ids ...string) ([]models.Pars
 	}
 
 	var response struct {
-		Data []models.ParserCoin `json:"data"`
+		Data []psModels.ParserCoin `json:"data"`
 	}
 
 	err = json.Unmarshal(body, &response)
@@ -200,7 +202,7 @@ func (p *Parser) fetchWitoutMeta(limit, start int, ids ...string) ([]models.Pars
 }
 
 // modificate slice
-func (p *Parser) fetchForMeta(coins []models.ParserCoin) error {
+func (p *Parser) fetchForMeta(coins []psModels.ParserCoin) error {
 	var builder strings.Builder
 	for i, coin := range coins {
 		if i > 0 {
@@ -258,6 +260,6 @@ func (p *Parser) fetchForMeta(coins []models.ParserCoin) error {
 }
 
 // se withoun run no meta info like logo png
-func (p *Parser) GetListWithoutMeta(idList []string) ([]models.ParserCoin, error) {
+func (p *Parser) GetListWithoutMeta(idList []string) ([]psModels.ParserCoin, error) {
 	return p.fetchWitoutMeta(100, 1, idList...)
 }

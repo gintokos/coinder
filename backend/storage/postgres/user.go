@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/models"
 	"gorm.io/gorm/clause"
 )
 

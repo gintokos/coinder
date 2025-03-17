@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/gintokos/coinder/backend/internal/config"
-	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/config"
+	"github.com/gintokos/coinder/backend/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

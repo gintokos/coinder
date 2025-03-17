@@ -5,8 +5,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/gintokos/coinder/backend/internal/constants"
-	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/constants"
+	"github.com/gintokos/coinder/backend/models"
 	"github.com/gintokos/coinder/backend/pkg/gerror"
 	"github.com/gintokos/coinder/backend/pkg/sl"
 	"github.com/gintokos/coinder/backend/pkg/telegram"

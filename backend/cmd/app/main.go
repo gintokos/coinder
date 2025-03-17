@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gintokos/coinder/backend/internal/app"
-	"github.com/gintokos/coinder/backend/internal/config"
-	"github.com/gintokos/coinder/backend/internal/storage"
+	"github.com/gintokos/coinder/backend/app"
+	"github.com/gintokos/coinder/backend/config"
+	"github.com/gintokos/coinder/backend/storage"
 	"github.com/gintokos/coinder/backend/pkg/sl"
 )
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gintokos/coinder/backend/internal/middleware"
-	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/middleware"
+	"github.com/gintokos/coinder/backend/models"
 	"github.com/gintokos/coinder/backend/pkg/sl"
 )
 
