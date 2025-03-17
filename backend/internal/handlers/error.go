@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gintokos/coinder/pkg/gerror"
+	"github.com/gintokos/coinder/backend/pkg/gerror"
 )
 
 func ErrorResponse(c *gin.Context, err error) {

@@ -5,11 +5,11 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/gintokos/coinder/internal/constants"
-	"github.com/gintokos/coinder/internal/models"
-	"github.com/gintokos/coinder/pkg/gerror"
-	"github.com/gintokos/coinder/pkg/sl"
-	"github.com/gintokos/coinder/pkg/telegram"
+	"github.com/gintokos/coinder/backend/internal/constants"
+	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/pkg/gerror"
+	"github.com/gintokos/coinder/backend/pkg/sl"
+	"github.com/gintokos/coinder/backend/pkg/telegram"
 )
 
 type UserStorage interface {

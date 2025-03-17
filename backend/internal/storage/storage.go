@@ -1,9 +1,9 @@
 package storage
 
 import (
-	"github.com/gintokos/coinder/internal/models"
-	"github.com/gintokos/coinder/internal/storage/cache"
-	"github.com/gintokos/coinder/internal/storage/postgres"
+	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/internal/storage/cache"
+	"github.com/gintokos/coinder/backend/internal/storage/postgres"
 )
 
 type Storage struct {

@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gintokos/coinder/internal/models"
-	"github.com/gintokos/coinder/pkg/sl"
+	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/pkg/sl"
 )
 
 const (

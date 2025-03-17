@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gintokos/coinder/internal/models"
-	"github.com/gintokos/coinder/pkg/telegram"
+	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/pkg/telegram"
 )
 
 func UserFromClaims(c *gin.Context) models.User {

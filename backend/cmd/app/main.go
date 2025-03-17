@@ -8,10 +8,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gintokos/coinder/internal/app"
-	"github.com/gintokos/coinder/internal/config"
-	"github.com/gintokos/coinder/internal/storage"
-	"github.com/gintokos/coinder/pkg/sl"
+	"github.com/gintokos/coinder/backend/internal/app"
+	"github.com/gintokos/coinder/backend/internal/config"
+	"github.com/gintokos/coinder/backend/internal/storage"
+	"github.com/gintokos/coinder/backend/pkg/sl"
 )
 
 func main() {

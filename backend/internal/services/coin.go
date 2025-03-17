@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gintokos/coinder/internal/handlers"
-	"github.com/gintokos/coinder/internal/models"
-	"github.com/gintokos/coinder/internal/parser"
-	"github.com/gintokos/coinder/pkg/gerror"
-	"github.com/gintokos/coinder/pkg/sl"
+	"github.com/gintokos/coinder/backend/internal/handlers"
+	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/internal/parser"
+	"github.com/gintokos/coinder/backend/pkg/gerror"
+	"github.com/gintokos/coinder/backend/pkg/sl"
 	"github.com/spf13/viper"
 )
 

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gintokos/coinder/pkg/gerror"
+	"github.com/gintokos/coinder/backend/pkg/gerror"
 )
 
 func LoggingMiddleware() gin.HandlerFunc {

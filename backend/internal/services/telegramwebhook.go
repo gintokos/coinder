@@ -1,6 +1,6 @@
 package services
 
-import "github.com/gintokos/coinder/pkg/telegram"
+import "github.com/gintokos/coinder/backend/pkg/telegram"
 
 type TelegramWebhookService struct {
 	bot     *telegram.Bot

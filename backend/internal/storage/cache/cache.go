@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gintokos/coinder/internal/models"
+	"github.com/gintokos/coinder/backend/internal/models"
 )
 
 type Cache struct {

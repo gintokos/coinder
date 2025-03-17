@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gintokos/coinder/internal/middleware"
-	"github.com/gintokos/coinder/internal/models"
+	"github.com/gintokos/coinder/backend/internal/middleware"
+	"github.com/gintokos/coinder/backend/internal/models"
 	"github.com/go-playground/validator/v10"
 )
 

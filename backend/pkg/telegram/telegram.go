@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gintokos/coinder/pkg/sl"
+	"github.com/gintokos/coinder/backend/pkg/sl"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 )

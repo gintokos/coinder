@@ -1,4 +1,4 @@
-module github.com/gintokos/coinder
+module github.com/gintokos/coinder/backend
 
 go 1.23.2
 
