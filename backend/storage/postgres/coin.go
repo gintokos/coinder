@@ -7,38 +7,7 @@ import (
 	"github.com/gintokos/coinder/backend/models"
 	"github.com/gintokos/coinder/backend/pkg/gerror"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
-
-func (d *Database) UpdateCoins(coins []models.DBCoin) error {
-	return d.db.Transaction(func(tx *gorm.DB) error {
-		if len(coins) > 100 {
-			if err := tx.Exec(`
-                SET LOCAL work_mem = '128MB';              
-                SET LOCAL maintenance_work_mem = '512MB';     
-                SET LOCAL temp_buffers = '32MB';          
-            `).Error; err != nil {
-				return gerror.New(err, constants.ErrDatabase, 500)
-			}
-		}
-
-		return tx.Session(&gorm.Session{
-			PrepareStmt:       true,
-			AllowGlobalUpdate: true,
-		}).Clauses(
-			clause.OnConflict{
-				Columns: []clause.Column{{Name: "id"}},
-				DoUpdates: clause.AssignmentColumns([]string{
-					"name", "symbol", "slug", "last_updated", "date_added", "date_launched",
-					"price", "volume_24h", "volume_change_24h", "percent_change_1h",
-					"percent_change_24h", "percent_change_7d", "market_cap",
-					"market_cap_dominance", "fully_diluted_market_cap",
-					"logo", "description",
-				}),
-			},
-		).CreateInBatches(coins, constants.BATCH_SIZE).Error
-	})
-}
 
 // DefaultSearchCoins retrieves a list of coins from the database based on the specified
 // search options. It supports sorting by price or market cap and can filter out coins
@@ -63,9 +32,9 @@ func (d *Database) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.DBCoin
 
 	if opt.UserIDTarget != 0 {
 		query = query.Distinct("coins.*")
-		
+
 		query = query.Joins("INNER JOIN likes on coins.id = likes.like_coin_id").Where("likes.like_user_id = ?", opt.UserIDTarget)
-		
+
 		if opt.LikedToday {
 			query = query.Where("DATE(likes.like_created_at) = CURRENT_DATE")
 		}

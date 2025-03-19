@@ -17,6 +17,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
     restart: unless-stopped
     command: sh -c "
       echo 'Waiting for database to be ready...' &&
@@ -24,10 +26,25 @@ services:
         sleep 1
       done &&
       echo 'Database is ready!' &&
+      echo 'Waiting for Kafka to be ready...' &&
+      while ! nc -z kafka 9092; do
+        sleep 1
+      done &&
+      echo 'Kafka is ready!' &&
       ./build/app/app --config ./appconfig.json &
       ./build/parser/parser --config ./configparser.json &
       wait
       "
+
+  coinparser:
+    image: myapp-coinparser:1.0
+    networks:
+      app-network:
+        ipv4_address: 172.20.0.4
+    depends_on:
+      - backend
+      - kafka
+    restart: unless-stopped
 
   database:
     image: postgres:14-alpine
@@ -38,7 +55,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     networks:
       app-network:
-        ipv4_address: 172.20.0.5
+        ipv4_address: 172.20.0.6
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -79,4 +96,6 @@ volumes:
   certbot-conf:
     driver: local
   certbot-www:
+    driver: local
+  kafka-data:
     driver: local

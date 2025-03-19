@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shopspring/decimal"
-	"github.com/gintokos/coinder/backend/internal/models"
+	"github.com/gintokos/coinder/backend/models"
 	psModels "github.com/gintokos/coinder/coinparser/models"
+	"github.com/shopspring/decimal"
 )
 
 func ToDBcoin(pc *psModels.ParserCoin) models.DBCoin {

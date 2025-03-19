@@ -9,3 +9,6 @@ deploy.tar.gz
 
 # Environment variables
 .env
+
+# proto exe compiler
+protogen

@@ -11,18 +11,15 @@ import (
 var _ handlers.CoinService = (*CoinService)(nil)
 
 type CoinStorage interface {
-	UpdateCoins(coin []models.DBCoin) error
 	DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.CoinResp, error)
 	ChangeLike(isIncrement bool, coinid int, userid int64) error
 }
 
 type CoinService struct {
-	// parser.Parser
 	storage CoinStorage
 }
 
 func NewCoinService(storage CoinStorage) *CoinService {
-	// ps := parser.NewDefault(viper.GetString("parser.cmc_apikey"))
 
 	return &CoinService{
 		// Parser:  ps,

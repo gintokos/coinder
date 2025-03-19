@@ -27,7 +27,7 @@ type config struct {
 	Domain      string   `mapstructure:"domain"`
 	Server      server   `mapstructure:"server"`
 	Database    database `mapstructure:"database"`
-	Parser      parser   `mapstructure:"parser"`
+	Kafka       kafka    `mapstructure:"kafka"`
 }
 
 type server struct {
@@ -39,11 +39,6 @@ type server struct {
 	ReadHeaderTimeout time.Duration `mapstructure:"readHeaderTimeout"`
 }
 
-type parser struct {
-	ApiKeyCoinMarketCap string        `mapstructure:"cmc_apikey"`
-	Timestamp           time.Duration `mapstructure:"timestamp"`
-	TimeForReq          time.Duration `mapstructure:"timeout_for_req"`
-}
 
 type database struct {
 	Name     string `mapstructure:"name"`
@@ -51,6 +46,11 @@ type database struct {
 	Password string `mapstructure:"password"`
 	Host     string `mapstructure:"host"`
 	Port     string `mapstructure:"port"`
+}
+
+type kafka struct {
+	Topic string `mapstructure:"topic"`
+
 }
 
 var defaultServer = server{

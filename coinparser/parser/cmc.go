@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/gintokos/coinder/backend/pkg/sl"
-	psModels "github.com/gintokos/coinder/coinparser/models"
 	"github.com/gintokos/coinder/backend/models"
+	"github.com/gintokos/coinder/backend/pkg/sl"
+	"github.com/gintokos/coinder/coinparser/config"
+	psModels "github.com/gintokos/coinder/coinparser/models"
 )
 
 const (
@@ -39,18 +39,12 @@ type Database interface {
 	UpdateCoins(coins []models.DBCoin) error
 }
 
-// timestamp is time beetwen planed updating database
-type Config struct {
-	ApiKeyCoinMarketCap string
-	Timestamp           time.Duration
-	TimeoutForReq       time.Duration
-}
-
 // database can be nil if run is not using
-func New(cfg Config, db Database) Parser {
+func New(db Database) Parser {
+	cfg := config.Parser()
 	return Parser{
 		httpClient: &http.Client{
-			Timeout: cfg.TimeoutForReq,
+			Timeout: cfg.TimeForReq,
 		},
 		apikey:    cfg.ApiKeyCoinMarketCap,
 		timestamp: cfg.Timestamp,
@@ -58,14 +52,9 @@ func New(cfg Config, db Database) Parser {
 	}
 }
 
-func NewDefault(apikey string) Parser {
-	return New(Config{
-		ApiKeyCoinMarketCap: apikey,
-	}, nil)
-}
 
 // method for parser\main.go only
-func (p *Parser) Run(ctx context.Context, wg *sync.WaitGroup) error {
+func (p *Parser) Run(ctx context.Context) error {
 	ticker := time.NewTicker(p.timestamp)
 	defer ticker.Stop()
 
@@ -136,7 +125,7 @@ func (p *Parser) parseallCoins() {
 	dbcoins := make([]models.DBCoin, 0, len(coins))
 	startTime := time.Now()
 	for i := range coins {
-		dbcoins = append(dbcoins, models.ToDBcoin(&coins[i]))
+		dbcoins = append(dbcoins, ToDBcoin(&coins[i]))
 	}
 	err := p.db.UpdateCoins(dbcoins)
 	if err != nil {
@@ -241,7 +230,7 @@ func (p *Parser) fetchForMeta(coins []psModels.ParserCoin) error {
 	}
 
 	var response struct {
-		Data map[string]models.ParserMetaDataCoin `json:"data"`
+		Data map[string]psModels.ParserMetaDataCoin `json:"data"`
 	}
 
 	err = json.Unmarshal(body, &response)

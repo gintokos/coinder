@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package coinupdate;
+
+option go_package = "github.com/gintokos/coinder/coinupdateprotos";
