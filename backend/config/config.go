@@ -28,6 +28,7 @@ type config struct {
 	Server      server   `mapstructure:"server"`
 	Database    database `mapstructure:"database"`
 	Kafka       kafka    `mapstructure:"kafka"`
+	GRPC 		grpc 	 `mapstructure:"grpc"`
 }
 
 type server struct {
@@ -50,7 +51,11 @@ type database struct {
 
 type kafka struct {
 	Topic string `mapstructure:"topic"`
+}
 
+type grpc struct {
+	Host              string        `mapstructure:"host"`
+	Port              string        `mapstructure:"port"`
 }
 
 var defaultServer = server{

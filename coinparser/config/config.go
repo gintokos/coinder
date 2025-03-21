@@ -17,10 +17,7 @@ type config struct {
 
 type server struct {
 	Port              string        `mapstructure:"port"`
-	ReadTimeout       time.Duration `mapstructure:"readTimeout"`
-	WriteTimeout      time.Duration `mapstructure:"writeTimeout"`
-	IdleTimeout       time.Duration `mapstructure:"idleTimeout"`
-	ReadHeaderTimeout time.Duration `mapstructure:"readHeaderTimeout"`
+	Host              string        `mapstructure:"host"`
 }
 
 type database struct {
@@ -55,6 +52,7 @@ var defaultpath string = "parserconfig.json"
 // default values. Finally, it unmarshals the configuration into the defaultConfig 
 // struct and logs a fatal error if unmarshalling fails.
 func init() {
+	viper.SetDefault("server.port", "50501")
 	viper.SetDefault("server.port", "8080")
 	viper.SetDefault("server.readTimeout", time.Second*5)
 	viper.SetDefault("server.writeTimeout", time.Second*5)

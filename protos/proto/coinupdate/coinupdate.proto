@@ -3,3 +3,59 @@ syntax = "proto3";
 package coinupdate;
 
 option go_package = "github.com/gintokos/coinder/coinupdateprotos";
+
+service CoinService{
+    rpc  UpdateCoins(Coins) returns (Coins);
+}
+
+message Coins{
+    repeated Coin coins = 1;
+}
+
+message Coin{
+    int32 id = 1;
+    string name = 2;
+    string symbol = 3;
+    string slug = 4;
+    float circSupply = 5;
+    float totalSupply = 6;
+    float maxSupply = 7;
+    bool infinite = 8;
+    string lastUpdated = 9;
+    string dateAdded = 10;
+    repeated string tags = 11;
+    float selfRepCS = 12;
+    float selfRepMC = 13;
+    float selfRepTags = 14;
+
+    Usd usd = 15;
+
+    MetaData metaData = 16;
+}
+
+message Usd {
+    float price = 1;
+    float volume24h = 2;
+    float volumeChange24h = 3;
+    float percentChange1h = 4;
+    float percentChange24h = 5;
+    float percentChange7d = 6;
+    float marketCap = 7;
+    float marketCapDom = 8;
+    float fullyDilutedMC = 9;
+    string lastUpdated = 10;
+}
+
+message MetaData{
+    string logo = 1;
+    string description = 2;
+    string notice = 3;
+    string dateLaunched = 4;
+    string category = 5;
+    repeated Url urls = 6;
+    repeated string selfRepTags = 7;
+}
+
+message Url{
+    repeated string urls = 1;
+}

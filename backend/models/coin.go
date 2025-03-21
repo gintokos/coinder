@@ -23,16 +23,21 @@ type CoinResp struct {
 	IsLiked bool `json:"is_liked"`
 }
 
-type DBCoin struct {
+type CoinStats struct{
+	LikesCount    int `gorm:"type:integer;default:0" json:"likes_count"`
+	CommentsCount int `gorm:"type:integer;default:0" json:"comments_count"`
+}
+
+type CommonInfoCoin struct {
 	ID     int    `gorm:"primaryKey;type:integer" json:"id"`
 	Name   string `gorm:"type:varchar(100);not null" json:"name"`
 	Symbol string `gorm:"type:varchar(20);not null" json:"symbol"`
 	Slug   string `gorm:"type:varchar(100);" json:"slug"`
-
+	
 	LastUpdated  *string `gorm:"type:timestamp" json:"last_updated"`
 	DateAdded    *string `gorm:"type:timestamp" json:"date_added"`
 	DateLaunched *string `gorm:"type:timestamp" json:"date_launched"`
-
+	
 	Price            decimal.Decimal `gorm:"type:decimal" json:"price"`
 	Volume24h        decimal.Decimal `gorm:"type:decimal" json:"volume_24h"`
 	VolumeChange24h  decimal.Decimal `gorm:"type:decimal" json:"volume_change_24h"`
@@ -42,13 +47,15 @@ type DBCoin struct {
 	MarketCap        decimal.Decimal `gorm:"type:decimal" json:"market_cap"`
 	MarketCapDom     decimal.Decimal `gorm:"type:decimal" json:"market_cap_dominance"`
 	FullyDilutedMC   decimal.Decimal `gorm:"type:decimal" json:"fully_diluted_market_cap"`
-
+	
 	DBurls      DBurls `gorm:"embedded" json:"urls"`
 	Logo        string `gorm:"type:text" json:"logo"`
 	Description string `gorm:"type:text" json:"description"`
+}
 
-	LikesCount    int `gorm:"type:integer;default:0" json:"likes_count"`
-	CommentsCount int `gorm:"type:integer;default:0" json:"comments_count"`
+type DBCoin struct {
+	CoinStats `gorm:"embedded"`
+	CommonInfoCoin `gorm:"embedded"`
 }
 
 type DBurls struct {

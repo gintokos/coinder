@@ -1,11 +1,14 @@
 package services
 
 import (
+	"context"
 	"log/slog"
+	"time"
 
 	"github.com/gintokos/coinder/backend/handlers"
 	"github.com/gintokos/coinder/backend/models"
 	"github.com/gintokos/coinder/backend/pkg/sl"
+	pb "github.com/gintokos/coinder/protos/coinupdateprotos"
 )
 
 var _ handlers.CoinService = (*CoinService)(nil)
@@ -16,78 +19,56 @@ type CoinStorage interface {
 }
 
 type CoinService struct {
-	storage CoinStorage
+	pbclient pb.CoinServiceClient
+	storage  CoinStorage
 }
 
-func NewCoinService(storage CoinStorage) *CoinService {
-
+func NewCoinService(storage CoinStorage, pbclient pb.CoinServiceClient) *CoinService {
 	return &CoinService{
-		// Parser:  ps,
-		storage: storage,
+		pbclient: pbclient,
+		storage:  storage,
 	}
 }
 
 func (s *CoinService) DefaultSearchCoins(opt models.SearchCoinOpt) ([]models.CoinResp, error) {
-	dbcoins, err := s.storage.DefaultSearchCoins(opt)
+	rcoins, err := s.storage.DefaultSearchCoins(opt)
 	if err != nil {
 		slog.Error("error in getting coins from database: ", sl.Err(err))
 		return nil, err
 	}
 
-	// s.Update(dbcoins)
+	dbcoins := make([]models.DBCoin, len(rcoins))
+	likedStatus := make(map[int]bool, len(rcoins))
 
-	return dbcoins, nil
+	for i, rcoin := range rcoins {
+		dbcoins[i] = rcoin.DBCoin
+		likedStatus[rcoin.ID] = rcoin.IsLiked
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+	defer cancel()
+	pbcoins, err := s.pbclient.UpdateCoins(ctx, models.ToPBCoin(dbcoins))
+	if err != nil {
+		slog.Error("Error on updating coins from service", sl.Err(err))
+		return rcoins, nil
+	}
+
+	updatedDBcoins := models.ToDBCoinsFromPB(pbcoins)
+
+	updatedCoinsMap := make(map[int]models.DBCoin, len(updatedDBcoins))
+	for _, coin := range updatedDBcoins {
+		updatedCoinsMap[coin.ID] = coin
+	}
+
+	for i := range rcoins {
+		if updatedCoin, exists := updatedCoinsMap[rcoins[i].ID]; exists {
+			rcoins[i].DBCoin = updatedCoin
+		}
+	}
+
+	return rcoins, nil
 }
 
 func (s *CoinService) ChangeLike(isIncrement bool, coinid int, userid int64) error {
 	return s.storage.ChangeLike(isIncrement, coinid, userid)
 }
-
-
-// func (s *CoinService) Update(dbcoins []models.DBCoin) {
-// 	if len(dbcoins) == 0 {
-// 		return
-// 	}
-
-// 	timer := time.NewTimer(PARSER_TIMEOUT)
-// 	done := make(chan struct{})
-// 	success := false
-
-// 	ids := make([]string, 0, len(dbcoins))
-// 	for _, coin := range dbcoins {
-// 		ids = append(ids, strconv.Itoa(coin.ID))
-// 	}
-
-// 	go func() {
-// 		defer close(done)
-
-// 		parscoins, err := s.Parser.GetListWithoutMeta(ids)
-// 		if err != nil || len(parscoins) == 0 {
-// 			slog.Error("error on getting coins from parser for req: ", sl.Err(err))
-// 			return
-// 		}
-
-// 		for i, pscoin := range parscoins {
-// 			dbcoins[i] = models.ToDBcoin(&pscoin)
-// 		}
-// 		success = true
-// 	}()
-
-// 	select {
-// 	case <-timer.C:
-// 		slog.Warn("parser timeout exceeded")
-// 		return
-// 	case <-done:
-// 		timer.Stop()
-// 	}
-
-// 	if success {
-// 		go func() {
-// 			err := s.storage.UpdateCoins(dbcoins)
-// 			if err != nil {
-// 				slog.Error("error on updating coins: ", "error", gerror.FullError(err))
-// 			}
-// 		}()
-// 	}
-// }
-

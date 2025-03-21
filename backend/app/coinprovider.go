@@ -13,8 +13,8 @@ type coinServiceProvider struct {
 	*storage.Storage
 }
 
-func newCoinServiceProvider(router *gin.RouterGroup, st *storage.Storage) *coinServiceProvider {
-	service := services.NewCoinService(st)
+func newCoinServiceProvider(router *gin.RouterGroup, st *storage.Storage, gclient gClient) *coinServiceProvider {
+	service := services.NewCoinService(st, gclient.CoinServiceClient)
 	handler := handlers.NewCoinHandler(router, service)
 	return &coinServiceProvider{
 		CoinHandler: handler,

@@ -16,12 +16,15 @@ import (
 	"github.com/gin-gonic/gin"
 	appcfg "github.com/gintokos/coinder/backend/config"
 	"github.com/gintokos/coinder/backend/middleware"
-	"github.com/gintokos/coinder/backend/storage"
 	"github.com/gintokos/coinder/backend/pkg/sl"
 	"github.com/gintokos/coinder/backend/pkg/telegram"
+	"github.com/gintokos/coinder/backend/storage"
+	pb "github.com/gintokos/coinder/protos/coinupdateprotos"
 	"github.com/spf13/viper"
 	"golang.ngrok.com/ngrok"
 	"golang.ngrok.com/ngrok/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -31,18 +34,30 @@ const (
 type App struct {
 	bot *telegram.Bot
 
+	// Context for grasefull stop of ngrok and bot connection
 	context   context.Context
 	ctxcancel context.CancelFunc
+
 	domain    string
 
 	*userServiceProvider
 	*coinServiceProvider
-	*telegraWebhookServiceProvider
+
+	Gclient gClient
 
 	server   *http.Server
 	api      *gin.RouterGroup
 	router   *gin.Engine
 	database *storage.Storage
+}
+
+type gClient struct {
+	conn *grpc.ClientConn
+	pb.CoinServiceClient
+}
+
+func (g *gClient) Close() {
+	g.conn.Close()
 }
 
 func NewApp(db *storage.Storage) (*App, error) {
@@ -64,11 +79,11 @@ func (a *App) initDeps() error {
 
 		a.initBot,
 
+		a.initGRPCCon,
+
 		a.initUserServiceProvider,
 
 		a.initCoinServiceProvider,
-
-		a.initTelegramWebhookServiceProvider,
 	}
 
 	for _, f := range inits {
@@ -76,6 +91,25 @@ func (a *App) initDeps() error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (a *App) initGRPCCon() error {
+	cfg := appcfg.Config.GRPC
+	env := appcfg.Config.Env
+
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%s", cfg.Host, cfg.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil && env != appcfg.LOCAL && env != appcfg.LOCAL_WITH_NGROK {
+		return err
+	}
+
+	client := pb.NewCoinServiceClient(conn)
+
+	a.Gclient = gClient{
+		conn: conn,
+		CoinServiceClient: client,
 	}
 
 	return nil
@@ -190,14 +224,8 @@ func (a *App) initUserServiceProvider() error {
 }
 
 func (a *App) initCoinServiceProvider() error {
-	a.coinServiceProvider = newCoinServiceProvider(a.api, a.database)
+	a.coinServiceProvider = newCoinServiceProvider(a.api, a.database, a.Gclient)
 	slog.Info("CoinServiceProvider was created")
-	return nil
-}
-
-func (a *App) initTelegramWebhookServiceProvider() error {
-	a.telegraWebhookServiceProvider = newTelegramWebhookServiceProvider(a.router, a.bot, a.database)
-	slog.Info("TelegramWebhookServiceProvider was created")
 	return nil
 }
 
@@ -286,6 +314,11 @@ func (a *App) startBot() {
 }
 
 func (a *App) GraceFullShutDown(ctx context.Context) error {
+	defer func(){
+		a.Gclient.Close()
+		a.ctxcancel()
+	}()
+
 	var servererr, dberr error
 	if err := a.server.Shutdown(ctx); err != nil {
 		servererr = err
